@@ -2,6 +2,8 @@
 move/build/
 .move/
 *.mv
+# 与 move/ 重复，勿提交
+move.zip
 
 # Node / Vite
 web/node_modules/
