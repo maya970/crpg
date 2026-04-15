@@ -59,7 +59,7 @@ git push -u origin main
 
 ```bash
 git status
-# 应能看到 web/package-lock.json、web/package.json、web/vite.config.ts、web/src/polyfill.ts 等
+# 应能看到 web/package-lock.json、web/package.json、web/vite.config.ts、web/src/entry.tsx 等
 git add web/package.json web/package-lock.json web/vite.config.ts web/src/
 git commit -m "web: deps + Buffer polyfill for production"
 git push origin main

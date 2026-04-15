@@ -1,3 +1,4 @@
+import inject from '@rollup/plugin-inject';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
@@ -20,5 +21,12 @@ export default defineConfig({
   },
   build: {
     chunkSizeWarningLimit: 16000,
+    rollupOptions: {
+      plugins: [
+        inject({
+          Buffer: ['buffer', 'Buffer'],
+        }),
+      ],
+    },
   },
 });
