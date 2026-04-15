@@ -28,6 +28,7 @@ import {
 import type { EncodeObject } from '@cosmjs/proto-signing';
 import { handleGameApi } from './gameApiBridge';
 import type { ItemDef } from './heroAdapter';
+import { KitErrorBoundary } from './KitErrorBoundary';
 
 const lcdUrl = import.meta.env.VITE_LCD_URL ?? '';
 const moduleAddr = import.meta.env.VITE_MOVE_MODULE_ADDR ?? '';
@@ -55,7 +56,7 @@ function parseNftList(gs: GameStoreRaw | null): Array<{ id: string; owner: strin
     .filter((n): n is { id: string; owner: string; packed: string } => Boolean(n && n.id));
 }
 
-export function App() {
+function AppMain() {
   const initiaAddress = useInitiaAddress();
   const { openConnect, isConnected, submitTxBlock, estimateGas, disconnect } = useInterwovenKit();
 
@@ -118,7 +119,7 @@ export function App() {
     } finally {
       setLoadingState(false);
     }
-  }, [initiaAddress]);
+  }, [initiaAddress, lcdUrl, moduleAddr]);
 
   useEffect(() => {
     void refresh();
@@ -253,7 +254,16 @@ export function App() {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        flex: 1,
+        minHeight: 0,
+        overflow: 'hidden',
+        color: 'var(--text, #e8eef5)',
+      }}
+    >
       <header
         style={{
           flexShrink: 0,
@@ -262,11 +272,11 @@ export function App() {
           alignItems: 'center',
           gap: '0.5rem',
           padding: '0.5rem 0.75rem',
-          borderBottom: '1px solid var(--border)',
-          background: 'var(--panel)',
+          borderBottom: '1px solid var(--border, #1e2a3a)',
+          background: 'var(--panel, #0f1620)',
         }}
       >
-        <strong style={{ fontSize: '0.9rem' }}>冒险者 · Initia</strong>
+        <strong style={{ fontSize: '0.9rem', color: 'var(--text, #e8eef5)' }}>冒险者 · Initia</strong>
         {navBtn('/town.html', '主城')}
         {navBtn('/dungeon.html', '地城')}
         {navBtn('/enhance.html', '强化')}
@@ -274,14 +284,30 @@ export function App() {
         {navBtn('/leaderboard.html', '排行')}
         {navBtn('/codex.html', '图鉴')}
         <span style={{ flex: 1 }} />
-        {!configOk && <span style={{ color: 'var(--danger)', fontSize: '0.75rem' }}>请配置 .env</span>}
+        {!configOk && (
+          <span style={{ color: 'var(--danger, #f87171)', fontSize: '0.75rem' }}>
+            未配置链上环境变量（VITE_LCD_URL / VITE_MOVE_MODULE_ADDR）
+          </span>
+        )}
         {isConnected ? (
-          <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', maxWidth: 180, overflow: 'hidden' }}>
+          <span
+            className="mono"
+            style={{
+              fontSize: '0.72rem',
+              color: 'var(--muted, #7a8fa3)',
+              maxWidth: 180,
+              overflow: 'hidden',
+            }}
+          >
             {initiaAddress || '…'}
           </span>
         ) : null}
         {!isConnected ? (
-          <button type="button" onClick={() => openConnect()} style={btnStyle('var(--accent)', '#042f2e')}>
+          <button
+            type="button"
+            onClick={() => openConnect()}
+            style={btnStyle('var(--accent, #5eead4)', '#042f2e')}
+          >
             连接钱包
           </button>
         ) : (
@@ -312,12 +338,14 @@ export function App() {
           flexShrink: 0,
           maxHeight: '40vh',
           overflow: 'auto',
-          borderTop: '1px solid var(--border)',
-          background: 'var(--bg)',
+          borderTop: '1px solid var(--border, #1e2a3a)',
+          background: 'var(--bg, #070b10)',
           fontSize: '0.85rem',
         }}
       >
-        <summary style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', color: 'var(--muted)' }}>
+        <summary
+          style={{ padding: '0.5rem 0.75rem', cursor: 'pointer', color: 'var(--muted, #7a8fa3)' }}
+        >
           链上调试台（遇敌 / 战斗 / NFT / bootstrap）
         </summary>
         <div style={{ maxWidth: 560, margin: '0 auto', padding: '0 1rem 1rem' }}>
@@ -504,6 +532,47 @@ export function App() {
           {txNote && <p className="mono" style={{ fontSize: '0.72rem', color: 'var(--muted)', wordBreak: 'break-all' }}>{txNote}</p>}
         </div>
       </details>
+    </div>
+  );
+}
+
+function AppSafeBanner() {
+  return (
+    <div
+      style={{
+        flexShrink: 0,
+        padding: '8px 12px',
+        background: '#1e293b',
+        color: '#f1f5f9',
+        fontSize: 13,
+        lineHeight: 1.45,
+        borderBottom: '1px solid #334155',
+      }}
+    >
+      <strong style={{ color: '#5eead4' }}>提示</strong>：下方顶栏应有「<strong>连接钱包</strong>」按钮。若整页无字、纯黑，请按{' '}
+      <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: 4 }}>F12</kbd> 打开「控制台」查看红色报错；并在
+      Vercel 中配置 <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_LCD_URL</code>、
+      <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_MOVE_MODULE_ADDR</code>。
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        overflow: 'hidden',
+        background: 'var(--bg, #070b10)',
+        color: 'var(--text, #e8eef5)',
+      }}
+    >
+      <AppSafeBanner />
+      <KitErrorBoundary>
+        <AppMain />
+      </KitErrorBoundary>
     </div>
   );
 }

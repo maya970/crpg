@@ -7,11 +7,14 @@
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "node ./node_modules/vite/bin/vite.js",
+    "build": "node ./node_modules/vite/bin/vite.js build",
+    "preview": "node ./node_modules/vite/bin/vite.js preview",
+    "postinstall": "node scripts/copy-three.cjs"
   },
   "dependencies": {
+    "buffer": "^6.0.3",
+    "three": "0.128.0",
     "@cosmjs/stargate": "^0.32.4",
     "@initia/initia.js": "^1.1.0",
     "@initia/interwovenkit-react": "^2.5.1",
@@ -26,6 +29,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "~5.6.3",
-    "vite": "^6.0.1"
+    "vite": "^6.0.1",
+    "vite-plugin-node-polyfills": "^0.23.0"
   }
 }

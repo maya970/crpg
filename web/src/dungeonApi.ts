@@ -1,5 +1,31 @@
 import { RESTClient } from '@initia/initia.js';
 
+/** 避免 REST 长期无响应导致 iframe 一直停在「加载中」 */
+const LCD_FETCH_MS = 28000;
+
+export class LcdTimeoutError extends Error {
+  constructor() {
+    super('链上 REST 查询超时，请检查 VITE_LCD_URL 与网络');
+    this.name = 'LcdTimeoutError';
+  }
+}
+
+function withLcdTimeout<T>(p: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new LcdTimeoutError()), LCD_FETCH_MS);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      }
+    );
+  });
+}
+
 /** LCD 返回的 Move 资源字段多为字符串 */
 export interface HeroRaw {
   xp: string;
@@ -67,7 +93,7 @@ export async function fetchGameStore(
   const client = new RESTClient(lcdUrl);
   const structTag = `${moduleAddress}::dungeon::GameStore`;
   try {
-    const res = await client.move.resource<GameStoreRaw>(moduleAddress, structTag);
+    const res = await withLcdTimeout(client.move.resource<GameStoreRaw>(moduleAddress, structTag));
     return res.data;
   } catch {
     return null;
@@ -82,9 +108,10 @@ export async function fetchHero(
   const client = new RESTClient(lcdUrl);
   const structTag = `${moduleAddress}::dungeon::Hero`;
   try {
-    const res = await client.move.resource<HeroRaw>(playerAddress, structTag);
+    const res = await withLcdTimeout(client.move.resource<HeroRaw>(playerAddress, structTag));
     return res.data;
-  } catch {
+  } catch (e) {
+    if (e instanceof LcdTimeoutError) throw e;
     return null;
   }
 }
@@ -96,7 +123,7 @@ export async function fetchAuctionHouse(
   const client = new RESTClient(lcdUrl);
   const structTag = `${moduleAddress}::dungeon::AuctionHouse`;
   try {
-    const res = await client.move.resource<AuctionHouseRaw>(moduleAddress, structTag);
+    const res = await withLcdTimeout(client.move.resource<AuctionHouseRaw>(moduleAddress, structTag));
     return res.data;
   } catch {
     return null;
@@ -110,7 +137,7 @@ export async function fetchWorldDungeon(
   const client = new RESTClient(lcdUrl);
   const structTag = `${moduleAddress}::dungeon::WorldDungeonState`;
   try {
-    const res = await client.move.resource<WorldDungeonRaw>(moduleAddress, structTag);
+    const res = await withLcdTimeout(client.move.resource<WorldDungeonRaw>(moduleAddress, structTag));
     return res.data;
   } catch {
     return null;
@@ -125,9 +152,10 @@ export async function fetchDungeonSpawn(
   const client = new RESTClient(lcdUrl);
   const structTag = `${moduleAddress}::dungeon::DungeonSpawn`;
   try {
-    const res = await client.move.resource<DungeonSpawnRaw>(playerAddress, structTag);
+    const res = await withLcdTimeout(client.move.resource<DungeonSpawnRaw>(playerAddress, structTag));
     return res.data;
-  } catch {
+  } catch (e) {
+    if (e instanceof LcdTimeoutError) throw e;
     return null;
   }
 }

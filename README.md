@@ -23,6 +23,14 @@ npm run dev
 
 请从 **`/` 根路径** 打开站点（不要单独打开 `public/*.html`），否则 iframe 与 `postMessage` 桥接会失效。
 
+### 与旧版 PHP（crpg）的差异
+
+链上版**没有** PHP 的账号密码会话：`login.html` 仅作遗留页面。真实登录 = 顶栏 **Initia 钱包**；角色数据在链上，由 `gameApi` 经 iframe 与 React 壳通信。
+
+### 地城页黑屏、无响应
+
+常见原因：① 未从 **`/`** 进入或未连钱包；② Vercel 未配置 **`VITE_LCD_URL` / `VITE_MOVE_MODULE_ADDR`**，链上查询卡住；③ **Three.js** 未加载（`npm install` 会生成 `public/vendor/three.min.js`，并有 jsdelivr 兜底）。部署后若仍异常，打开浏览器 **开发者工具 → Console / Network** 查看报错。
+
 ## 推到 GitHub
 
 在仓库根目录（包含 `move/` 与 `web/` 的这一层）执行：
@@ -42,6 +50,22 @@ git push -u origin main
 ```
 
 （若使用 SSH，把 `origin` URL 换成 `git@github.com:...`。）
+
+### 前端改依赖后务必提交 lockfile
+
+本地 `npm install` 会更新 **`web/package-lock.json`**。若只改 `web/package.json` 却**不提交、不推送** lockfile，GitHub / Vercel 上的 `npm install` 与你不一致，容易出现**缺包、`Buffer is not defined`** 等问题。
+
+推送前在仓库根目录检查：
+
+```bash
+git status
+# 应能看到 web/package-lock.json、web/package.json、web/vite.config.ts、web/src/polyfill.ts 等
+git add web/package.json web/package-lock.json web/vite.config.ts web/src/
+git commit -m "web: deps + Buffer polyfill for production"
+git push origin main
+```
+
+构建日志里 `/*#__PURE__*/`、`eval` 相关提示来自第三方库，**可忽略**；只要最后有 `✓ built` 即成功。
 
 ## 部署到 Vercel（静态站点）
 
@@ -72,4 +96,3 @@ initiad move deploy --path . --build ... # 参数见官方文档
 ```
 
 `Move.toml` 请使用 **Unix 换行（LF）**，避免 Windows `CRLF` 导致 “Unable to parse Move package manifest”。
-# crpg

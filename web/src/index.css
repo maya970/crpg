@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;600;700&display=swap');
+/* 字体改由 index.html link 加载，避免 @import 阻塞首屏 CSS */
 
 :root {
   --bg: #070b10;
