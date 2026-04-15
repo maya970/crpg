@@ -72,3 +72,4 @@ initiad move deploy --path . --build ... # 参数见官方文档
 ```
 
 `Move.toml` 请使用 **Unix 换行（LF）**，避免 Windows `CRLF` 导致 “Unable to parse Move package manifest”。
+# crpg
