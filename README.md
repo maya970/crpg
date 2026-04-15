@@ -91,6 +91,8 @@ git push origin main
 
 另外 **`web/package.json`** 已将 **vite、typescript、插件等全部放进 `dependencies`**，即使将来未带上述环境变量，也更容易装全依赖。
 
+若安装阶段因 **React 19 / peer dependency** 报错退出，仓库内 **`web/.npmrc`** 已设 **`legacy-peer-deps=true`**，`vercel.json` 的 `installCommand` 也带了 **`--legacy-peer-deps`**。本地请在 `web` 目录重新执行 **`npm install`** 并提交更新后的 **`package-lock.json`**。
+
 推送后请在 Vercel → **Deployments** → 失败那条 → **Building** 日志里看具体报错；本地可先 `cd web && npm install && npm run build` 复现。
 
 ### 钱包与域名（必看）
