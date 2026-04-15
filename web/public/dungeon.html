@@ -5,7 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>地下城 · 冒险者地牢</title>
   <link rel="stylesheet" href="css/main.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- 优先本地 vendor（npm install 后生成）；缺失时由 jsdelivr 兜底（cdnjs 在部分地区不可用） -->
+  <script src="vendor/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 </head>
 <body class="rpg-view-dungeon">
   <script>

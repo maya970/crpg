@@ -10,11 +10,12 @@
     "dev": "node ./node_modules/vite/bin/vite.js",
     "build": "node ./node_modules/vite/bin/vite.js build",
     "preview": "node ./node_modules/vite/bin/vite.js preview",
-    "postinstall": "node scripts/copy-three.cjs"
+    "ship:check": "npm run build && git -C .. rev-parse --show-toplevel >/dev/null && git -C .. status -sb"
   },
   "dependencies": {
     "@cosmjs/stargate": "^0.32.4",
     "@initia/initia.js": "^1.1.0",
+    "@initia/icons-react": "^2.1.0",
     "@initia/interwovenkit-react": "^2.5.1",
     "@tanstack/react-query": "^5.62.0",
     "@types/react": "^19.2.0",

@@ -25,16 +25,15 @@
     try {
       const s = await gameApi('session', {});
       if (!s.logged_in) {
-        const q = s.restricted && s.error ? '?msg=' + encodeURIComponent(s.error) : '';
-        location.href = 'login.html' + q;
+        g.toast('未连接钱包：请在顶栏连接 Initia 钱包。');
         return;
       }
       if (!s.has_hero) {
-        alert('请先在顶栏游戏壳中点击「注册链上角色」，然后刷新本页。');
+        g.toast('请先在顶栏点击「注册链上角色」，再刷新本页。');
         return;
       }
-    } catch (_) {
-      location.href = 'login.html';
+    } catch (e) {
+      g.toast(String((e && e.message) || e || '无法连接游戏壳'));
       return;
     }
     try {

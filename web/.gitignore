@@ -3,3 +3,5 @@ dist
 .env
 .env.local
 *.local
+# Vite buildStart 从 node_modules 复制，勿提交
+public/vendor/

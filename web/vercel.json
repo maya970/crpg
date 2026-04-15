@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "NPM_CONFIG_PRODUCTION=false npm install --legacy-peer-deps",
+  "buildCommand": "NODE_OPTIONS=--max-old-space-size=8192 npm run build",
+  "outputDirectory": "dist",
+  "build": {
+    "env": {
+      "VITE_NETWORK": "testnet",
+      "VITE_LCD_URL": "https://rest.testnet.initia.xyz",
+      "VITE_MOVE_MODULE_ADDR": "0x249A0913DB1FA0D5D8B425745B3277F61988A09F",
+      "VITE_GAS_PRICE": "0.015uinit"
+    }
+  }
+}
