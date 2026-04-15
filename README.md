@@ -1,0 +1,74 @@
+# Initia Adventurer（Move + Web）
+
+链上地牢 RPG：`move/` 为 Move 合约（`adventurer::dungeon`），`web/` 为 React + Vite 前端（InterwovenKit 钱包、链上读写）。
+
+## 你当前的测试网部署
+
+- **链 ID**：`initiation-2`
+- **RPC**：`https://rpc.testnet.initia.xyz`
+- **REST（LCD）**：`https://rest.testnet.initia.xyz`
+- **模块地址**（你提供的发布地址）：`0x249A0913DB1FA0D5D8B425745B3277F61988A09F`
+
+前端通过环境变量 `VITE_MOVE_MODULE_ADDR` 指向该地址；若 REST 报错，可改用 `initiad` / 浏览器插件显示的 **bech32** 形式（与链上查询一致即可）。
+
+## 本地开发（前端）
+
+```bash
+cd web
+cp .env.example .env
+# 编辑 .env，填好 VITE_MOVE_MODULE_ADDR 等
+npm install
+npm run dev
+```
+
+请从 **`/` 根路径** 打开站点（不要单独打开 `public/*.html`），否则 iframe 与 `postMessage` 桥接会失效。
+
+## 推到 GitHub
+
+在仓库根目录（包含 `move/` 与 `web/` 的这一层）执行：
+
+```bash
+git init
+git add .
+git commit -m "Initial commit: Initia Adventurer Move + web"
+```
+
+在 GitHub 新建空仓库后：
+
+```bash
+git remote add origin https://github.com/<你的用户名>/<仓库名>.git
+git branch -M main
+git push -u origin main
+```
+
+（若使用 SSH，把 `origin` URL 换成 `git@github.com:...`。）
+
+## 部署到 Vercel（静态站点）
+
+1. 用 GitHub 账号登录 [Vercel](https://vercel.com)，**Import** 上述仓库（根目录已含 `vercel.json`，会进入 `web` 构建并把产物目录设为 `web/dist`）。
+2. 若你删掉了根目录 `vercel.json`，则需在项目设置里把 **Root Directory** 设为 **`web`**，Build：`npm run build`，Output：`dist`。
+3. 在 **Environment Variables** 里添加（Production / Preview 按需勾选）：
+
+| Name | 示例值 |
+|------|--------|
+| `VITE_NETWORK` | `testnet` |
+| `VITE_LCD_URL` | `https://rest.testnet.initia.xyz` |
+| `VITE_MOVE_MODULE_ADDR` | `0x249A0913DB1FA0D5D8B425745B3277F61988A09F` |
+| `VITE_GAS_PRICE` | `0.015uinit` |
+
+4. 点击 **Deploy**。之后每次改环境变量都要重新构建一次。
+
+### 钱包与域名（必看）
+
+前端使用 **InterwovenKit**（文档见 [Initia InterwovenKit](https://docs.initia.xyz)）。在 **Privy / Auto-Sign** 等后台配置里，需要把你的 **Vercel 域名**（如 `https://xxx.vercel.app`）加入允许列表，否则生产环境连接钱包可能失败。
+
+## 合约编译与部署（回顾）
+
+在 `move/` 目录：
+
+```bash
+initiad move build --named-addresses adventurer=0x你的地址
+initiad move deploy --path . --build ... # 参数见官方文档
+```
+
+`Move.toml` 请使用 **Unix 换行（LF）**，避免 Windows `CRLF` 导致 “Unable to parse Move package manifest”。

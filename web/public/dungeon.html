@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>地下城 · 冒险者地牢</title>
+  <link rel="stylesheet" href="css/main.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body class="rpg-view-dungeon">
+  <script>
+    window.RPG_RETURN_TOWN = 'town.html';
+    window.RPG_LOGIN_URL = 'login.html';
+  </script>
+  <div id="app-wrap">
+    <div id="game-root">
+      <div id="hud">加载中…</div>
+      <div id="dungeon-sheet" class="dungeon-sheet" hidden></div>
+      <div id="local-combat-log" class="local-combat-log" aria-live="polite" title="仅保存在本机浏览器"></div>
+      <div id="toast"></div>
+      <div id="flash" class="flash"></div>
+      <div id="dungeon-bg-preload-hint" class="dungeon-bg-preload-hint" hidden></div>
+      <div id="dungeon-load-overlay" class="dungeon-load-overlay" hidden aria-busy="true">
+        <div class="dungeon-load-card">
+          <div id="dungeon-load-choice" class="dungeon-load-choice">
+            <p class="dungeon-load-title">进入地下城 · 素材加载</p>
+            <p class="dungeon-load-hint">首次进入请选择加载方式。</p>
+            <button type="button" id="btn-preload-wait" class="dungeon-load-btn primary">全部加载完成后再开始</button>
+            <button type="button" id="btn-preload-bg" class="dungeon-load-btn">立即进入（后台加载）</button>
+          </div>
+          <div id="dungeon-load-progress" class="dungeon-load-progress" hidden>
+            <p id="dungeon-load-label" class="dungeon-load-label">正在加载地城素材…</p>
+            <div id="dungeon-load-bar-wrap" class="dungeon-load-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+              <div id="dungeon-load-fill" class="dungeon-load-fill"></div>
+            </div>
+            <p id="dungeon-load-pct" class="dungeon-load-pct">0%</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="bar">
+      <button type="button" id="btn-town" class="primary">回城</button>
+    </div>
+  </div>
+
+  <audio id="bgm" loop preload="auto"></audio>
+
+  <script src="js/api-client.js"></script>
+  <script src="js/town-ui.js"></script>
+  <script src="js/dungeon-game.js"></script>
+  <script src="js/dungeon-page.js"></script>
+  <script>
+    document.body.addEventListener('click', function once() {
+      var a = document.getElementById('bgm');
+      if (a && a.paused) a.play().catch(function () {});
+    }, { once: true });
+  </script>
+</body>
+</html>

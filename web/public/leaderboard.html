@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>排行榜 · 冒险者地牢</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="rpg-view-town standalone-rpg-body">
+  <script>window.RPG_LOGIN_URL = 'login.html';</script>
+  <div id="toast"></div>
+  <div class="standalone-page">
+    <nav class="town-nav" aria-label="页面导航">
+      <a href="town.html">主城</a>
+      <a href="codex.html">魔物图鉴</a>
+      <a href="leaderboard.html" aria-current="page">排行榜</a>
+      <a href="enhance.html">强化工坊</a>
+      <a href="auction.html">拍卖行</a>
+    </nav>
+    <header class="standalone-header">
+      <h1>排行榜</h1>
+      <p class="standalone-sub">经验、金币与三件装备的排行分各取前 10；角色榜显示装备后的有效属性。</p>
+    </header>
+    <div class="panel lb-panel lb-panel-multi">
+      <button type="button" id="btn-lb-refresh" class="auth-btn primary lb-refresh-top">刷新全部榜单</button>
+      <div id="lb-boards" class="lb-boards"></div>
+    </div>
+  </div>
+  <script src="js/api-client.js"></script>
+  <script src="js/town-ui.js"></script>
+  <script src="js/town-nav.js"></script>
+  <script src="js/leaderboard-page.js"></script>
+</body>
+</html>

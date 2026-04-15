@@ -1,0 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@400;600;700&display=swap');
+
+:root {
+  --bg: #070b10;
+  --panel: #0f1620;
+  --border: #1e2a3a;
+  --text: #e8eef5;
+  --muted: #7a8fa3;
+  --accent: #5eead4;
+  --danger: #f87171;
+  --gold: #fbbf24;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Outfit, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+code,
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

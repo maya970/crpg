@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>冒险者主城 · 冒险者地牢</title>
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body class="rpg-view-town">
+  <script>window.RPG_LOGIN_URL = 'login.html';</script>
+  <div id="toast"></div>
+
+  <div id="town-overlay" class="open">
+    <nav class="town-nav" aria-label="页面导航">
+      <a href="town.html" aria-current="page">主城</a>
+      <a href="codex.html">魔物图鉴</a>
+      <a href="leaderboard.html">排行榜</a>
+      <a href="enhance.html">强化工坊</a>
+      <a href="auction.html">拍卖行</a>
+    </nav>
+
+    <div class="town-header">
+      <h1>冒险者主城</h1>
+      <p id="town-name" class="town-subtitle"></p>
+      <button type="button" id="btn-logout" class="town-logout">退出登录</button>
+    </div>
+
+    <div class="town-grid town-top">
+      <div class="panel panel-attr">
+        <h2>属性面板</h2>
+        <p class="panel-intro">等级、经验、金币、生命、护甲与六维属性。</p>
+        <div id="town-stats" class="town-stats-body"></div>
+      </div>
+      <div class="panel panel-detail">
+        <h2>物品介绍 · 装备介绍 · 图鉴详情</h2>
+        <p class="panel-intro">选中背包或装备槽后显示详情与商店收购价。魔物图鉴与多维度排行见独立页面。</p>
+        <div id="item-detail-pane" class="item-detail-pane"></div>
+      </div>
+    </div>
+
+    <div class="town-grid town-mid">
+      <div class="panel">
+        <h2>装备栏</h2>
+        <p class="panel-intro">主手（右）与副手（左）各一把武器（独立槽位），以及护甲、戒指与鞋（鞋减轻陷阱伤害）。</p>
+        <div id="equip-slots" class="equip-slots"></div>
+      </div>
+      <div class="panel">
+        <h2>背包（物品栏）</h2>
+        <p class="panel-intro">未穿戴的物品；可装备、出售。</p>
+        <div class="bag-toolbar">
+          <button type="button" id="btn-sell-all" class="bag-sell-all-btn">全部售出…</button>
+        </div>
+        <div id="bag-list" class="bag-list"></div>
+      </div>
+    </div>
+
+    <div id="town-actions">
+      <a href="dungeon.html" class="town-dungeon-link">进入地下城</a>
+    </div>
+  </div>
+
+  <div id="sell-one-modal" class="rpg-modal" hidden>
+    <div class="rpg-modal-card" role="dialog" aria-modal="true" aria-labelledby="sell-one-title">
+      <h3 id="sell-one-title" class="rpg-modal-title">确认出售？</h3>
+      <p id="sell-one-summary" class="rpg-modal-text"></p>
+      <div class="rpg-modal-actions">
+        <button type="button" id="sell-one-cancel" class="rpg-modal-btn">取消</button>
+        <button type="button" id="sell-one-confirm" class="rpg-modal-btn danger">确定出售</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="sell-all-modal" class="rpg-modal" hidden>
+    <div class="rpg-modal-card" role="dialog" aria-modal="true" aria-labelledby="sell-all-title">
+      <h3 id="sell-all-title" class="rpg-modal-title">确认全部售出？</h3>
+      <p class="rpg-modal-text">将一次性卖出背包内所有<strong>未装备</strong>物品，按商店收购价结算。</p>
+      <p id="sell-all-summary" class="rpg-modal-text sell-all-summary"></p>
+      <div class="rpg-modal-actions">
+        <button type="button" id="sell-all-cancel" class="rpg-modal-btn">取消</button>
+        <button type="button" id="sell-all-confirm" class="rpg-modal-btn danger">确定全部卖出</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api-client.js"></script>
+  <script src="js/rpg-build-check.js"></script>
+  <script src="js/town-ui.js"></script>
+  <script src="js/town-nav.js"></script>
+  <script src="js/town-page.js"></script>
+</body>
+</html>

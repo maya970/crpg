@@ -1,0 +1,11 @@
+[package]
+name = "AdventurerDungeon"
+version = "0.1.0"
+
+[dependencies]
+InitiaStdlib = { git = "https://github.com/initia-labs/movevm.git", subdir = "precompile/modules/initia_stdlib", rev = "main" }
+
+[addresses]
+# Overridden at build/deploy with: --named-addresses adventurer=0x...
+adventurer = "0x1"
+std = "0x1"

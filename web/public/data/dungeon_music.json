@@ -1,0 +1,21 @@
+{
+  "default": [
+    "https://arweave.net/3QaXlF77IDjwKKIsROMldfaE9XWh5cIkM_E6556BreE"
+  ],
+  "ranges": [
+    {
+      "from_floor": 1,
+      "to_floor": 10,
+      "src": [
+        "https://arweave.net/3QaXlF77IDjwKKIsROMldfaE9XWh5cIkM_E6556BreE"
+      ]
+    },
+    {
+      "from_floor": 11,
+      "to_floor": 20,
+      "src": [
+        "https://arweave.net/3QaXlF77IDjwKKIsROMldfaE9XWh5cIkM_E6556BreE"
+      ]
+    }
+  ]
+}

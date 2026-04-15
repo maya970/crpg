@@ -1,0 +1,34 @@
+[
+  {"id": "candy_cane_club", "equip_hand": "main", "image_num": 1, "label": "拐杖糖短棍", "desc": "用硬糖制成的近战武器，甜中带狠。冬季节日地城里最常见的入门武装。", "slot": "weapon", "rarity": "common", "weight": 22, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d6"},
+  {"id": "silver_star_dagger", "equip_hand": "off", "image_num": 2, "label": "银星匕首", "desc": "匕尖刻有六角星纹，轻巧适合偷袭。小幅提升敏捷手感。", "slot": "weapon", "rarity": "uncommon", "weight": 14, "bonus_str": 0, "bonus_dex": 1, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d6+2"},
+  {"id": "holiday_warhammer", "equip_hand": "main", "image_num": 3, "label": "节日战锤", "desc": "锤头裹金箔，砸下去既有气势也有分量。需要一定臂力。", "slot": "weapon", "rarity": "rare", "weight": 8, "bonus_str": 2, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d10+1"},
+  {"id": "aurora_greatsword", "equip_hand": "main", "image_num": 4, "label": "极光巨剑", "desc": "剑身折射七彩微光，传说在极夜下会自行嗡鸣。沉重而致命。", "slot": "weapon", "rarity": "epic", "weight": 5, "bonus_str": 3, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "2d6+2"},
+  {"id": "midnight_carol_blade", "equip_hand": "main", "image_num": 5, "label": "子夜颂歌之刃", "desc": "刀脊镂刻无声圣歌符文，挥砍时仿佛有合唱在耳边回荡。", "slot": "weapon", "rarity": "legendary", "weight": 2, "bonus_str": 4, "bonus_dex": 1, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "2d8+3"},
+
+  {"id": "wreath_buckler", "image_num": 6, "label": "花环小盾", "desc": "藤环外饰冬青叶，格挡时散发淡淡松香。轻型护具。", "slot": "armor", "rarity": "common", "weight": 20, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 2, "damage_dice": "1d4"},
+  {"id": "bell_coat", "image_num": 7, "label": "铃铛大衣", "desc": "行走时叮当作响，既喜庆也暴露位置。防御与灵巧兼顾。", "slot": "armor", "rarity": "uncommon", "weight": 12, "bonus_str": 0, "bonus_dex": 1, "bonus_con": 0, "bonus_ac": 3, "damage_dice": "1d4"},
+  {"id": "santa_parade_plate", "image_num": 8, "label": "巡礼板甲", "desc": "红白涂装的礼仪板甲，内衬加厚羊毛，意外坚固。", "slot": "armor", "rarity": "rare", "weight": 7, "bonus_str": 1, "bonus_dex": 0, "bonus_con": 1, "bonus_ac": 5, "damage_dice": "1d4"},
+  {"id": "iceveil_robe", "image_num": 9, "label": "冰纱法袍", "desc": "织入细雪结晶丝线，触感冰凉。对劈砍有奇效。", "slot": "armor", "rarity": "epic", "weight": 4, "bonus_str": 0, "bonus_dex": 2, "bonus_con": 1, "bonus_ac": 6, "damage_dice": "1d4"},
+  {"id": "starfall_aegis", "image_num": 10, "label": "星落圣盾衣", "desc": "胸甲镶嵌陨星碎片，据说能吸收一次致命冲击的余波。", "slot": "armor", "rarity": "legendary", "weight": 1, "bonus_str": 1, "bonus_dex": 1, "bonus_con": 2, "bonus_ac": 8, "damage_dice": "1d4"},
+
+  {"id": "frostbite_ring", "image_num": 11, "label": "霜噬戒指", "desc": "戒面永不融化的霜花，微量强化体质与护体。", "slot": "ring", "rarity": "rare", "weight": 6, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 1, "bonus_ac": 1, "damage_dice": "1d4"},
+  {"id": "mistletoe_band", "image_num": 12, "label": "槲寄生指环", "desc": "传说在槲寄生下交换的礼物会带来好运。略增闪避直觉。", "slot": "ring", "rarity": "uncommon", "weight": 10, "bonus_str": 0, "bonus_dex": 1, "bonus_con": 0, "bonus_ac": 1, "damage_dice": "1d4"},
+  {"id": "coal_ember_loop", "image_num": 13, "label": "煤核余温环", "desc": "嵌有一块温热的煤精，冬天戴着格外暖和。", "slot": "ring", "rarity": "common", "weight": 16, "bonus_str": 1, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+  {"id": "yule_log_signet", "image_num": 14, "label": "圣诞木玺戒", "desc": "印纹为燃烧冬青木，象征长夜将尽。", "slot": "ring", "rarity": "epic", "weight": 3, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 2, "bonus_ac": 2, "damage_dice": "1d4"},
+
+  {"id": "felt_slippers", "image_num": 23, "label": "毡绒便鞋", "desc": "厚毡底能缓冲地城机关的刺痛，入门冒险者的贴心之选。", "slot": "boots", "rarity": "common", "weight": 18, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "bonus_trap": 0, "damage_dice": "1d4"},
+  {"id": "sleigh_runner_boots", "image_num": 24, "label": "雪橇滑行靴", "desc": "靴底嵌微型冰刃纹路，既防滑也能卸开陷阱的冲击力。", "slot": "boots", "rarity": "uncommon", "weight": 12, "bonus_str": 0, "bonus_dex": 1, "bonus_con": 0, "bonus_ac": 0, "bonus_trap": 1, "damage_dice": "1d6"},
+  {"id": "aurora_treaders", "image_num": 25, "label": "极光踏靴", "desc": "靴筒织入微光丝线，传说踩中机关时会有柔光缓冲。", "slot": "boots", "rarity": "rare", "weight": 7, "bonus_str": 0, "bonus_dex": 1, "bonus_con": 1, "bonus_ac": 0, "bonus_trap": 1, "damage_dice": "1d8"},
+  {"id": "starpath_greaves", "image_num": 26, "label": "星轨胫靴", "desc": "胫甲刻星轨符文，高阶鞋具，对地刺与落穴有显著减震。", "slot": "boots", "rarity": "epic", "weight": 4, "bonus_str": 0, "bonus_dex": 2, "bonus_con": 0, "bonus_ac": 1, "bonus_trap": 2, "damage_dice": "2d4"},
+  {"id": "midnight_silent_boots", "image_num": 27, "label": "子夜无声靴", "desc": "传说圣诞老人夜巡所穿，踏雪无痕，机关亦难伤其主。", "slot": "boots", "rarity": "legendary", "weight": 2, "bonus_str": 0, "bonus_dex": 2, "bonus_con": 1, "bonus_ac": 1, "bonus_trap": 2, "damage_dice": "2d6"},
+
+  {"id": "hot_cocoa_flask", "image_num": 15, "label": "热可可壶（纪念）", "desc": "并不能真的喝，但闻着很香。收藏用杂物，可卖给商人。", "slot": "misc", "rarity": "common", "weight": 30, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+  {"id": "snowglobe_souvenir", "image_num": 16, "label": "雪景球纪念品", "desc": "摇晃时里面的小屋会下雪。无战斗加成。", "slot": "misc", "rarity": "common", "weight": 28, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+  {"id": "reindeer_badge", "image_num": 17, "label": "驯鹿徽章", "desc": "铜制驯鹿剪影，据说能指引迷路的旅人——仅限心理作用。", "slot": "misc", "rarity": "uncommon", "weight": 18, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+  {"id": "elf_whistle", "image_num": 18, "label": "精灵口哨", "desc": "吹不响，但工艺精美。精灵工坊流出的失败品。", "slot": "misc", "rarity": "uncommon", "weight": 15, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+  {"id": "holly_ink_vial", "image_num": 19, "label": "冬青墨水瓶", "desc": "墨水带着苦味，适合抄写防护咒文——如果你会写字的话。", "slot": "misc", "rarity": "rare", "weight": 9, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+  {"id": "comet_shard", "image_num": 20, "label": "彗星碎屑", "desc": "微光闪烁的矿石碎片，炼金师愿意出高价。", "slot": "misc", "rarity": "epic", "weight": 5, "bonus_str": 0, "bonus_dex": 0, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d4"},
+
+  {"id": "ribbon_whip", "equip_hand": "off", "image_num": 21, "label": "丝带软鞭", "desc": "绸带末端坠银铃，抽击时铃声夺人心神。偏技巧型武器。", "slot": "weapon", "rarity": "uncommon", "weight": 13, "bonus_str": 0, "bonus_dex": 2, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d8+1"},
+  {"id": "pine_needle_fan", "equip_hand": "off", "image_num": 22, "label": "松针扇刃", "desc": "扇骨为松木，展开如无数细针。适合敏捷型冒险者。", "slot": "weapon", "rarity": "rare", "weight": 9, "bonus_str": 0, "bonus_dex": 3, "bonus_con": 0, "bonus_ac": 0, "damage_dice": "1d8+3"}
+]
