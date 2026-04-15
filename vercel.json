@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd web && npm install && npm run build",
-  "outputDirectory": "web/dist",
-  "installCommand": "cd web && npm install"
+  "installCommand": "cd web && NPM_CONFIG_PRODUCTION=false npm install",
+  "buildCommand": "cd web && NODE_OPTIONS=--max-old-space-size=8192 npm run build",
+  "outputDirectory": "web/dist"
 }

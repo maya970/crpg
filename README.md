@@ -82,6 +82,17 @@ git push origin main
 
 4. 点击 **Deploy**。之后每次改环境变量都要重新构建一次。
 
+### Vercel 显示 Failed to deploy（构建失败）
+
+常见原因：① 安装阶段省略了 **devDependencies**，导致没有 `vite`；② 打包 **内存不足**（单包约 13MB+）。根目录 **`vercel.json`** 已配置：
+
+- `installCommand`：`NPM_CONFIG_PRODUCTION=false npm install`（强制安装含开发依赖）
+- `buildCommand`：`NODE_OPTIONS=--max-old-space-size=8192`（加大 Node 堆内存）
+
+另外 **`web/package.json`** 已将 **vite、typescript、插件等全部放进 `dependencies`**，即使将来未带上述环境变量，也更容易装全依赖。
+
+推送后请在 Vercel → **Deployments** → 失败那条 → **Building** 日志里看具体报错；本地可先 `cd web && npm install && npm run build` 复现。
+
 ### 钱包与域名（必看）
 
 前端使用 **InterwovenKit**（文档见 [Initia InterwovenKit](https://docs.initia.xyz)）。在 **Privy / Auto-Sign** 等后台配置里，需要把你的 **Vercel 域名**（如 `https://xxx.vercel.app`）加入允许列表，否则生产环境连接钱包可能失败。
