@@ -126,8 +126,11 @@ module adventurer::dungeon {
         }
     }
 
+    /// LCG step matching JS uint64 wrap; raw `u64 * u64` aborts on overflow — keep low 64 bits.
     fun next_seed(s: u64): u64 {
-        s * 1103515245u64 + 12345u64
+        let t = (s as u128) * 1103515245u128 + 12345u128;
+        let mask: u128 = 0xffffffffffffffffu128;
+        ((t & mask) as u64)
     }
 
     fun min_u64(a: u64, b: u64): u64 {
@@ -550,33 +553,43 @@ module adventurer::dungeon {
 
     fun grant_kill_rewards(h: &mut Hero) {
         let f = h.floor;
+        let ff = if (f < 1) {
+            1
+        } else {
+            f
+        };
         let s0 = h.seed;
         let base_xp = 3 + (s0 % 14);
-        let xp = base_xp + (f - 1) * 26 / 10;
+        let xp = base_xp + (ff - 1) * 26 / 10;
         let s1 = next_seed(s0);
         let base_g = 1 + (s1 % 11);
-        let g = base_g + (f - 1) * 15 / 10;
+        let g = base_g + (ff - 1) * 15 / 10;
         let s2 = next_seed(s1);
         h.xp = h.xp + xp;
         h.gold = h.gold + g;
-        let ch = kill_loot_chance(f);
-        let s3 = try_loot_drop(h, f, ch, s2);
+        let ch = kill_loot_chance(ff);
+        let s3 = try_loot_drop(h, ff, ch, s2);
         h.seed = s3;
     }
 
     fun grant_chest_rewards(h: &mut Hero) {
         let f = h.floor;
+        let ff = if (f < 1) {
+            1
+        } else {
+            f
+        };
         let s0 = h.seed;
         let base_xp = 5 + (s0 % 18);
-        let xp = base_xp + (f - 1) * 32 / 10;
+        let xp = base_xp + (ff - 1) * 32 / 10;
         let s1 = next_seed(s0);
         let base_g = 2 + (s1 % 13);
-        let g = base_g + (f - 1) * 20 / 10;
+        let g = base_g + (ff - 1) * 20 / 10;
         let s2 = next_seed(s1);
         h.xp = h.xp + xp;
         h.gold = h.gold + g;
-        let ch = chest_loot_chance(f);
-        let s3 = try_loot_drop(h, f, ch, s2);
+        let ch = chest_loot_chance(ff);
+        let s3 = try_loot_drop(h, ff, ch, s2);
         h.seed = s3;
     }
 

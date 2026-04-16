@@ -34,6 +34,12 @@ const lcdUrl = import.meta.env.VITE_LCD_URL ?? '';
 const moduleAddr = import.meta.env.VITE_MOVE_MODULE_ADDR ?? '';
 const gasPriceStr = import.meta.env.VITE_GAS_PRICE ?? '0.025uinit';
 
+const INITIA_TESTNET_FAUCET = 'https://app.testnet.initia.xyz/faucet';
+
+function isLikelyUnfundedAccountMessage(msg: string): boolean {
+  return /does not exist on chain|Send some tokens before trying to query sequence/i.test(msg);
+}
+
 const MON_NONE = 255n;
 
 function parseBag(h: HeroRaw | null): string[] {
@@ -78,6 +84,9 @@ function AppMain() {
   const [nftTransferId, setNftTransferId] = useState('1');
   const [nftTransferTo, setNftTransferTo] = useState('');
   const [iframeSrc, setIframeSrc] = useState('/town.html');
+
+  const isMainnet = import.meta.env.VITE_NETWORK === 'mainnet';
+  const showTestnetFaucet = !isMainnet;
 
   useEffect(() => {
     void fetch('/data/items.json')
@@ -143,14 +152,17 @@ function AppMain() {
         await refresh();
         return { ok: true as const };
       } catch (e) {
-        const err = e instanceof Error ? e.message : String(e);
+        let err = e instanceof Error ? e.message : String(e);
+        if (!isMainnet && isLikelyUnfundedAccountMessage(err)) {
+          err = `新钱包需先领测试 INIT 才能发交易（${INITIA_TESTNET_FAUCET}）。原始错误：${err}`;
+        }
         setTxNote(err);
         return { ok: false as const, error: err };
       } finally {
         setTxBusy(false);
       }
     },
-    [initiaAddress, estimateGas, submitTxBlock, refresh]
+    [initiaAddress, estimateGas, submitTxBlock, refresh, isMainnet]
   );
 
   const bridgeCtx = useMemo(
@@ -316,16 +328,77 @@ function AppMain() {
           </button>
         )}
         {isConnected && configOk && !hero && (
-          <button
-            type="button"
-            disabled={txBusy}
-            onClick={() => void submit([dungeonExecuteMsg(initiaAddress!, moduleAddr, 'register')])}
-            style={btnStyle('#a78bfa', '#1e1b4b')}
-          >
-            注册链上角色
-          </button>
+          <>
+            <button
+              type="button"
+              disabled={txBusy}
+              onClick={() => void submit([dungeonExecuteMsg(initiaAddress!, moduleAddr, 'register')])}
+              style={btnStyle('#a78bfa', '#1e1b4b')}
+            >
+              注册链上角色
+            </button>
+            {showTestnetFaucet && (
+              <a
+                href={INITIA_TESTNET_FAUCET}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '0.72rem', color: 'var(--accent, #5eead4)', whiteSpace: 'nowrap' }}
+              >
+                新钱包先领测试 INIT
+              </a>
+            )}
+          </>
         )}
       </header>
+
+      {(queryErr || txNote) && (
+        <div
+          role="status"
+          style={{
+            flexShrink: 0,
+            padding: '0.5rem 0.75rem',
+            borderBottom: '1px solid var(--border, #1e2a3a)',
+            background: '#140f1a',
+            fontSize: '0.78rem',
+            lineHeight: 1.45,
+          }}
+        >
+          {queryErr ? (
+            <p style={{ margin: 0, color: 'var(--danger, #f87171)', wordBreak: 'break-word' }}>
+              <strong>链上查询</strong>：{queryErr}
+              {showTestnetFaucet && isLikelyUnfundedAccountMessage(queryErr) ? (
+                <>
+                  {' '}
+                  <a href={INITIA_TESTNET_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent, #5eead4)' }}>
+                    打开测试网水龙头
+                  </a>
+                  （账户上链并有余额后，再点「注册链上角色」）
+                </>
+              ) : null}
+            </p>
+          ) : null}
+          {txNote ? (
+            <p
+              className="mono"
+              style={{
+                margin: queryErr ? '0.4rem 0 0' : 0,
+                color: txNote.startsWith('成功') ? 'var(--accent, #5eead4)' : 'var(--danger, #f87171)',
+                wordBreak: 'break-word',
+              }}
+            >
+              <strong>交易</strong>：{txNote}
+              {showTestnetFaucet && !txNote.startsWith('成功') && isLikelyUnfundedAccountMessage(txNote) ? (
+                <>
+                  {' '}
+                  <a href={INITIA_TESTNET_FAUCET} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent, #5eead4)' }}>
+                    打开测试网水龙头
+                  </a>
+                </>
+              ) : null}
+            </p>
+          ) : null}
+        </div>
+      )}
 
       <iframe
         title="rpg"
@@ -536,6 +609,8 @@ function AppMain() {
   );
 }
 
+const AUTOSIGN_DOCS = 'https://docs.initia.xyz/interwovenkit/features/autosign/configuration';
+
 function AppSafeBanner() {
   return (
     <div
@@ -549,10 +624,22 @@ function AppSafeBanner() {
         borderBottom: '1px solid #334155',
       }}
     >
-      <strong style={{ color: '#5eead4' }}>提示</strong>：下方顶栏应有「<strong>连接钱包</strong>」按钮。若整页无字、纯黑，请按{' '}
-      <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: 4 }}>F12</kbd> 打开「控制台」查看红色报错；并在
-      Vercel 中配置 <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_LCD_URL</code>、
-      <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_MOVE_MODULE_ADDR</code>。
+      <p style={{ margin: '0 0 6px' }}>
+        <strong style={{ color: '#5eead4' }}>提示</strong>：下方顶栏应有「<strong>连接钱包</strong>」按钮。若整页无字、纯黑，请按{' '}
+        <kbd style={{ background: '#334155', padding: '2px 6px', borderRadius: 4 }}>F12</kbd> 打开「控制台」查看红色报错；并在
+        Vercel 中配置 <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_LCD_URL</code>、
+        <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_MOVE_MODULE_ADDR</code>。
+      </p>
+      <p style={{ margin: 0, fontSize: 12, color: '#cbd5e1' }}>
+        <strong style={{ color: '#a5f3fc' }}>减少重复签名（Auto-Sign）</strong>：本页使用 Initia{' '}
+        <strong>InterwovenKit</strong>（内置 <strong>Privy</strong> 登录/嵌入式钱包）。按{' '}
+        <a href={AUTOSIGN_DOCS} target="_blank" rel="noopener noreferrer" style={{ color: '#5eead4' }}>
+          官方 Auto-Sign 配置
+        </a>{' '}
+        把<strong>你的站点域名</strong>加入 Privy 允许列表并启用 Auto-Sign 后，再在环境变量里设{' '}
+        <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_ENABLE_AUTOSIGN=true</code>
+        并重新部署。<strong>未配好前不要打开</strong>，否则可能卡在首屏。钱包请用顶栏同一套 Initia 连接（非浏览器插件钱包路径）。
+      </p>
     </div>
   );
 }
