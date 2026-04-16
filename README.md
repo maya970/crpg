@@ -23,7 +23,6 @@
 
 👉 **[开始冒险 →](https://mxzgh.com)**
 
-（部署后替换为你的 Vercel 链接）
 
 **链信息**：
 - **链 ID**：`initiation-2`
