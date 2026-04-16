@@ -129,7 +129,7 @@ module adventurer::dungeon {
         }
     }
 
-    /// LCG step matching JS uint64 wrap; raw `u64 * u64` aborts on overflow — keep low 64 bits.
+    /// LCG step matching JS uint64 wrap; raw u64*u64 aborts on overflow - keep low 64 bits.
     fun next_seed(s: u64): u64 {
         let t = (s as u128) * 1103515245u128 + 12345u128;
         let mask: u128 = 0xffffffffffffffffu128;
@@ -159,10 +159,10 @@ module adventurer::dungeon {
         let base = 18u128;
         let ff = (f as u128);
         let mul_num = 100u128 + (ff - 1u128) * 11u128;
-        let mut hp = (base * mul_num) / 100u128 + (ff - 1u128) * 2u128;
+        let hp0 = (base * mul_num) / 100u128 + (ff - 1u128) * 2u128;
         let tm = (world_dungeon_tier(f) as u128);
-        hp = hp * tm;
-        let out = hp * 1000u128;
+        let hp1 = hp0 * tm;
+        let out = hp1 * 1000u128;
         let cap: u128 = 0xffffffffffffffffu128;
         if (out > cap) {
             cap as u64
@@ -689,7 +689,7 @@ module adventurer::dungeon {
     }
 
     /// Reset 3D spawn floor to 1 (jump portal ack). Creates DungeonSpawn if missing.
-    public entry fun jump_reset_spawn(account: &signer) {
+    public entry fun jump_reset_spawn(account: &signer) acquires DungeonSpawn {
         let a = signer::address_of(account);
         assert!(exists<Hero>(a), E_NO_HERO);
         if (!exists<DungeonSpawn>(a)) {
@@ -729,9 +729,9 @@ module adventurer::dungeon {
         };
         {
             let h = borrow_global_mut<Hero>(a);
-            let mut total = 0u64;
-            let mut prev = BAG_CAP;
-            let mut i = 0u64;
+            let total = 0u64;
+            let prev = BAG_CAP;
+            let i = 0u64;
             while (i < n) {
                 let slot = if (i == 0) {
                     s0
