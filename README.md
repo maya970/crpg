@@ -21,7 +21,7 @@
 
 **测试网地址**（推荐使用 Chrome + InterwovenKit 钱包）：
 
-👉 **[开始冒险 →](https://你的-vercel-域名.vercel.app)**
+👉 **[开始冒险 →](https://mxzgh.com)**
 
 （部署后替换为你的 Vercel 链接）
 
