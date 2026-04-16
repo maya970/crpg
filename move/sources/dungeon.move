@@ -36,9 +36,12 @@ module adventurer::dungeon {
     const E_JUMP_PORTAL: u64 = 29;
     const E_CHIP_DAMAGE: u64 = 30;
     const E_DUNGEON_SPAWN_EXISTS: u64 = 31;
+    const E_FLOOR_MAX: u64 = 32;
     const MON_NONE: u8 = 255;
     const BAG_CAP: u64 = 16;
     const ITEM_SLOTS: u64 = 27;
+    /// Cap floor so u64 scaling math cannot overflow (descend is unbounded on-chain).
+    const MAX_FLOOR: u64 = 1_000_000;
 
     struct Hero has key {
         xp: u64,
@@ -152,13 +155,20 @@ module adventurer::dungeon {
 
     /// Same scaling as PHP world boss hp_max (ginger_grunt template).
     fun world_boss_work_target(milestone: u64): u64 {
-        let f = milestone;
-        let base = 18u64;
-        let mul_num = 100 + (f - 1) * 11;
-        let mut hp = (base * mul_num) / 100 + (f - 1) * 2;
-        let tm = world_dungeon_tier(f);
+        let f = min_u64(milestone, MAX_FLOOR);
+        let base = 18u128;
+        let ff = (f as u128);
+        let mul_num = 100u128 + (ff - 1u128) * 11u128;
+        let mut hp = (base * mul_num) / 100u128 + (ff - 1u128) * 2u128;
+        let tm = (world_dungeon_tier(f) as u128);
         hp = hp * tm;
-        hp * 1000
+        let out = hp * 1000u128;
+        let cap: u128 = 0xffffffffffffffffu128;
+        if (out > cap) {
+            cap as u64
+        } else {
+            (out as u64)
+        }
     }
 
     fun weapon_dice_max_main_hand(h: &Hero): u64 {
@@ -166,9 +176,15 @@ module adventurer::dungeon {
         if (wi == MON_NONE) {
             4
         } else {
-            let pw = (packed_plus_u8(h.eq_w_main) as u64) * 2;
+            let pw = (packed_plus_u8(h.eq_w_main) as u128) * 2u128;
             let (n, d, m) = catalog::item_damage_ndm(wi);
-            n * d + m + pw
+            let t = (n as u128) * (d as u128) + (m as u128) + pw;
+            let cap: u128 = 0xffffffffffffffffu128;
+            if (t > cap) {
+                cap as u64
+            } else {
+                (t as u64)
+            }
         }
     }
 
@@ -194,7 +210,8 @@ module adventurer::dungeon {
         } else {
             let i = 1u64;
             let best = 0u64;
-            while (i * i <= y && i < 100000) {
+            let yy = (y as u128);
+            while ((i as u128) * (i as u128) <= yy && i < 100000) {
                 best = i;
                 i = i + 1;
             };
@@ -204,7 +221,8 @@ module adventurer::dungeon {
 
     fun sqrt_ceil(y: u64): u64 {
         let s = sqrt_floor(y);
-        if (s * s >= y) {
+        let ss = (s as u128) * (s as u128);
+        if (ss >= (y as u128)) {
             s
         } else {
             s + 1
@@ -228,7 +246,7 @@ module adventurer::dungeon {
 
     fun dice_difficulty_from_idx(idx: u8): u64 {
         let (n, d, _) = catalog::item_damage_ndm(idx);
-        let p = n * d;
+        let p = ((n as u128) * (d as u128)) as u64;
         sqrt_ceil(p)
     }
 
@@ -364,7 +382,14 @@ module adventurer::dungeon {
             0
         };
         let bracket = 4 + cm;
-        max_u64(1, 8 + lvl * bracket)
+        let t = 8u128 + (lvl as u128) * (bracket as u128);
+        let cap: u128 = 0xffffffffffffffffu128;
+        let v = if (t > cap) {
+            cap as u64
+        } else {
+            (t as u64)
+        };
+        max_u64(1, v)
     }
 
     fun ac_for(h: &Hero): u64 {
@@ -469,14 +494,27 @@ module adventurer::dungeon {
     }
 
     fun scale_monster(floor: u64, id: u8): (u64, u64, u64, u8, u8, u64) {
-        let f = if (floor < 1) {
-            1
-        } else {
-            floor
-        };
+        let f = min_u64(
+            if (floor < 1) {
+                1
+            } else {
+                floor
+            },
+            MAX_FLOOR
+        );
         let bhp = catalog::mon_base_hp(id);
-        let mul = 100 + (f - 1) * 11;
-        let hp = max_u64(1, (bhp * mul) / 100 + (f - 1) * 2);
+        let ff = (f as u128);
+        let mul = 100u128 + (ff - 1u128) * 11u128;
+        let hp128 = ((bhp as u128) * mul) / 100u128 + (ff - 1u128) * 2u128;
+        let cap: u128 = 0xffffffffffffffffu128;
+        let hp = max_u64(
+            1,
+            if (hp128 > cap) {
+                cap as u64
+            } else {
+                (hp128 as u64)
+            }
+        );
         let bac = catalog::mon_base_ac(id);
         let ac = min_u64(30, bac + (f - 1) / 2);
         let bth = catalog::mon_base_to_hit(id);
@@ -553,11 +591,12 @@ module adventurer::dungeon {
 
     fun grant_kill_rewards(h: &mut Hero) {
         let f = h.floor;
-        let ff = if (f < 1) {
+        let ff0 = if (f < 1) {
             1
         } else {
             f
         };
+        let ff = min_u64(ff0, MAX_FLOOR);
         let s0 = h.seed;
         let base_xp = 3 + (s0 % 14);
         let xp = base_xp + (ff - 1) * 26 / 10;
@@ -574,11 +613,12 @@ module adventurer::dungeon {
 
     fun grant_chest_rewards(h: &mut Hero) {
         let f = h.floor;
-        let ff = if (f < 1) {
+        let ff0 = if (f < 1) {
             1
         } else {
             f
         };
+        let ff = min_u64(ff0, MAX_FLOOR);
         let s0 = h.seed;
         let base_xp = 5 + (s0 % 18);
         let xp = base_xp + (ff - 1) * 32 / 10;
@@ -1121,7 +1161,8 @@ module adventurer::dungeon {
         let a = signer::address_of(account);
         assert!(exists<Hero>(a), E_NO_HERO);
         let h = borrow_global_mut<Hero>(a);
-        let cost = 10 + h.floor * 2;
+        let fcap = min_u64(h.floor, MAX_FLOOR);
+        let cost = 10 + fcap * 2;
         assert!(h.gold >= cost, E_GOLD);
         h.gold = h.gold - cost;
         let hm = hp_max_for(h);
@@ -1235,6 +1276,7 @@ module adventurer::dungeon {
         assert!(h.hp > 0, E_PLAYER_DEAD);
         assert!(h.mon_id == MON_NONE && h.mon_hp == 0, E_MONSTER_ACTIVE);
         assert!(h.ready_descend, E_NO_DESCEND_TOKEN);
+        assert!(h.floor < MAX_FLOOR, E_FLOOR_MAX);
         h.ready_descend = false;
         h.floor = h.floor + 1;
         h.chest_taken = 0;
