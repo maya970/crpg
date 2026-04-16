@@ -4,8 +4,6 @@
 
 你将化身为冒险者，进入由 Move 智能合约驱动的全链上地牢。每一场战斗、每一件装备、每一次探索都 **100% 上链**，真正属于你的链上传奇。
 
-![Game Banner](https://via.placeholder.com/1200x400/0A0A2A/00FFAA?text=Initia+Adventurer+-+On-Chain+Dungeon+RPG)  
-*(替换为你的游戏截图或 GIF)*
 
 ---
 
