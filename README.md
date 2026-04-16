@@ -44,9 +44,13 @@
 ## 📁 项目结构
 
 Initia Adventurer/
+
 ├── move/          # Move 智能合约（地牢核心逻辑）
+
 ├── web/           # React + Vite 前端（游戏界面 + 链上交互）
+
 ├── vercel.json    # Vercel 部署配置
+
 └── README.md
 
 ---
