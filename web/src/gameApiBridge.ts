@@ -3,6 +3,7 @@ import type { HeroRaw } from './dungeonApi';
 import { parseU64 } from './dungeonApi';
 import {
   dungeonExecuteMsg,
+  msgsEncounterThenAutoBattle,
   msgAuctionBuy,
   msgAuctionCancel,
   msgAuctionPost,
@@ -102,8 +103,8 @@ async function resolveCombat(ctx: GameApiBridgeContext): Promise<void> {
   if (!h) throw new Error('尚未注册链上角色');
   let monId = parseU64(h.mon_id);
   if (monId === MON_NONE) {
-    const r = await ctx.submitTx([dungeonExecuteMsg(addr, ctx.moduleAddr, 'encounter_start')]);
-    if (!r.ok) throw new Error(r.error || '遇敌失败');
+    const r = await ctx.submitTx(msgsEncounterThenAutoBattle(addr, ctx.moduleAddr, 32));
+    if (!r.ok) throw new Error(r.error || '遇敌或战斗失败');
     h = await ctx.fetchHero();
     if (!h) throw new Error('读取角色失败');
   }

@@ -14,6 +14,7 @@ import {
 } from './dungeonApi';
 import {
   dungeonExecuteMsg,
+  msgsEncounterThenAutoBattle,
   msgAdminSetMint,
   msgAutoBattle,
   msgBootstrapAuctionHouse,
@@ -461,6 +462,17 @@ function AppMain() {
                   style={btnStyle('#38bdf8', '#0c4a6e')}
                 >
                   遇敌
+                </button>
+                <button
+                  type="button"
+                  disabled={txBusy || !canEncounter}
+                  title="同一笔交易：遇敌后立即自动战斗，只签一次名"
+                  onClick={() =>
+                    void submit(msgsEncounterThenAutoBattle(initiaAddress!, moduleAddr, 24))
+                  }
+                  style={btnStyle('#0ea5e9', '#0c4a6e')}
+                >
+                  遇敌+开打
                 </button>
                 <button
                   type="button"

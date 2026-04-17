@@ -49,6 +49,15 @@ export function msgAutoBattle(sender: string, mod: string, maxRounds: number): E
   return dungeonExecuteMsg(sender, mod, 'auto_battle', [], [String(Math.min(255, Math.max(1, maxRounds)))]);
 }
 
+/** One signature: encounter_start then auto_battle (msgs run in order in a single tx). */
+export function msgsEncounterThenAutoBattle(
+  sender: string,
+  mod: string,
+  maxRounds: number
+): EncodeObject[] {
+  return [dungeonExecuteMsg(sender, mod, 'encounter_start'), msgAutoBattle(sender, mod, maxRounds)];
+}
+
 /** sell_bag_slot(slot: u64) */
 export function msgSellBag(sender: string, mod: string, slot: number): EncodeObject {
   return dungeonExecuteMsg(sender, mod, 'sell_bag_slot', [], [String(slot)]);
