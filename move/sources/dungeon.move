@@ -649,18 +649,35 @@ module adventurer::dungeon {
         );
     }
 
-    /// Call once after deploy from the account that matches named address `adventurer` to init auction house.
+    /// Runs when this package is **first** published: creates `AuctionHouse` at `@adventurer` (publisher).
+    /// After that, **any player** can use the auction; no publish-wallet step is required on new deploys.
+    /// (Move cannot `move_to` another account's global storage, so the resource must be created at publish or by `@adventurer`.)
+    fun init_module(deployer: &signer) {
+        if (!exists<AuctionHouse>(@adventurer)) {
+            move_to(
+                deployer,
+                AuctionHouse {
+                    lots: vector::empty(),
+                    next_id: 1,
+                }
+            );
+        };
+    }
+
+    /// Idempotent: if `AuctionHouse` already exists (e.g. after `init_module` or a prior bootstrap), **any** caller is a no-op.
+    /// If still missing (old deployments without `init_module`), only `@adventurer` can create it so it lands at the global address.
     public entry fun bootstrap_auction_house(account: &signer) {
-        let a = signer::address_of(account);
-        assert!(a == @adventurer, E_NOT_ADMIN);
-        assert!(!exists<AuctionHouse>(@adventurer), E_AUCTION_HOUSE_EXISTS);
-        move_to(
-            account,
-            AuctionHouse {
-                lots: vector::empty(),
-                next_id: 1,
-            }
-        );
+        if (!exists<AuctionHouse>(@adventurer)) {
+            let a = signer::address_of(account);
+            assert!(a == @adventurer, E_NOT_ADMIN);
+            move_to(
+                account,
+                AuctionHouse {
+                    lots: vector::empty(),
+                    next_id: 1,
+                }
+            );
+        };
     }
 
     /// One-time init shared world boss / jump max floor (same admin as other bootstraps).

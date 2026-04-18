@@ -41,7 +41,7 @@ import {
 const MON_NONE = 255n;
 
 const AUCTION_NOT_BOOTSTRAPPED =
-  '链上尚未初始化拍卖行：请用发布该包时 Move.toml 中的 adventurer 账户执行一次 dungeon::bootstrap_auction_house，再刷新页面后重试。';
+  '链上尚无拍卖行。新版合约在首次发布时会自动创建拍卖行；请重新部署/升级模块后刷新。若仍为旧链且从未初始化，则需 adventurer 地址执行一次 dungeon::bootstrap_auction_house。';
 
 export type BridgeSubmitResult = { ok: boolean; error?: string };
 
