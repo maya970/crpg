@@ -531,6 +531,20 @@ async function refreshAuction(game, listId) {
   const el = qs(listId || 'auc-list');
   if (!el) return;
   el.innerHTML = '';
+  const aucPostBtn = qs('auc-post-btn');
+  const aucSel = qs('auc-post-item');
+  if (data.auction_house_ready === false) {
+    el.innerHTML = `<p class="empty-hint" style="margin-bottom:12px">${escapeHtml(
+      '链上尚未初始化拍卖行。请用发布该模块的 adventurer 账户执行一次 dungeon::bootstrap_auction_house，成功后刷新本页。'
+    )}</p>`;
+    if (aucPostBtn) aucPostBtn.disabled = true;
+    if (aucSel) {
+      aucSel.disabled = true;
+      aucSel.innerHTML = '<option value="">拍卖行未就绪</option>';
+    }
+    return;
+  }
+  if (aucSel) aucSel.disabled = false;
   const myPid = game.state && game.state.player ? Number(game.state.player.id) : 0;
   (data.listings || []).forEach((L) => {
     let snap = {};
@@ -591,6 +605,7 @@ async function refreshAuction(game, listId) {
     row.appendChild(actions);
     el.appendChild(row);
   });
+  if (game && qs('auc-post-item')) populateAuctionSelect(game);
 }
 
 function renderLbPersonRow(r, i, extraLineHtml) {

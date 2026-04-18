@@ -40,6 +40,9 @@ import {
 
 const MON_NONE = 255n;
 
+const AUCTION_NOT_BOOTSTRAPPED =
+  '链上尚未初始化拍卖行：请用发布该包时 Move.toml 中的 adventurer 账户执行一次 dungeon::bootstrap_auction_house，再刷新页面后重试。';
+
 export type BridgeSubmitResult = { ok: boolean; error?: string };
 
 export type GameApiBridgeContext = {
@@ -344,6 +347,7 @@ export async function handleGameApi(
     }
     case 'auction_list': {
       const ah = await ctx.fetchAuctionHouse();
+      const auction_house_ready = Boolean(ah);
       const lots = Array.isArray(ah?.lots) ? ah!.lots : [];
       const listings = (lots as Record<string, unknown>[]).map((L) => {
         const seller = String(L.seller ?? '');
@@ -361,10 +365,11 @@ export async function handleGameApi(
           item_snapshot: JSON.stringify(snap),
         };
       });
-      return { ok: true, listings };
+      return { ok: true, auction_house_ready, listings };
     }
     case 'auction_post': {
       if (!addr) throw new Error('未连接钱包');
+      if (!(await ctx.fetchAuctionHouse())) throw new Error(AUCTION_NOT_BOOTSTRAPPED);
       const itemId = Number(b.item_id);
       const route = parseSyntheticItemId(itemId);
       if (!route || route.kind !== 'bag') throw new Error('请从背包上架');
@@ -375,6 +380,7 @@ export async function handleGameApi(
     }
     case 'auction_cancel': {
       if (!addr) throw new Error('未连接钱包');
+      if (!(await ctx.fetchAuctionHouse())) throw new Error(AUCTION_NOT_BOOTSTRAPPED);
       const lotId = String(b.auction_id ?? '');
       const r = await ctx.submitTx([msgAuctionCancel(addr, mod, lotId)]);
       if (!r.ok) throw new Error(r.error || '下架失败');
@@ -382,6 +388,7 @@ export async function handleGameApi(
     }
     case 'auction_buy': {
       if (!addr) throw new Error('未连接钱包');
+      if (!(await ctx.fetchAuctionHouse())) throw new Error(AUCTION_NOT_BOOTSTRAPPED);
       const lotId = String(b.auction_id ?? '');
       const r = await ctx.submitTx([msgAuctionBuy(addr, mod, lotId)]);
       if (!r.ok) throw new Error(r.error || '购买失败');
