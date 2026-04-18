@@ -1,7 +1,33 @@
 import type { EncodeObject } from '@cosmjs/proto-signing';
-import { MsgExecute } from '@initia/initia.js';
+import { Buffer } from 'buffer';
+import { MsgExecute, bcs } from '@initia/initia.js';
 
 const MSG_EXECUTE = '/initia.move.v1.MsgExecute' as const;
+
+/** Initia Move `MsgExecute` args: each value is BCS bytes as base64 (see initia-js docs). */
+function moveArgBcs(bytes: Uint8Array): string {
+  const withB64 = bytes as Uint8Array & { toBase64?: () => string };
+  if (typeof withB64.toBase64 === 'function') return withB64.toBase64();
+  return Buffer.from(bytes).toString('base64');
+}
+
+function b64U64(v: string | number | bigint): string {
+  const x = typeof v === 'bigint' ? v : String(v);
+  return moveArgBcs(bcs.u64().serialize(x));
+}
+
+function b64U8(v: number): string {
+  const n = Math.min(255, Math.max(0, Math.floor(Number(v))));
+  return moveArgBcs(bcs.u8().serialize(n));
+}
+
+function b64Bool(v: boolean): string {
+  return moveArgBcs(bcs.bool().serialize(v));
+}
+
+function b64Address(addr: string): string {
+  return moveArgBcs(bcs.address().serialize(addr));
+}
 
 export type DungeonFn =
   | 'register'
@@ -46,7 +72,8 @@ export function dungeonExecuteMsg(
 
 /** auto_battle(max_rounds: u8) */
 export function msgAutoBattle(sender: string, mod: string, maxRounds: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'auto_battle', [], [String(Math.min(255, Math.max(1, maxRounds)))]);
+  const r = Math.min(255, Math.max(1, Math.floor(maxRounds)));
+  return dungeonExecuteMsg(sender, mod, 'auto_battle', [], [b64U8(r)]);
 }
 
 /** One signature: encounter_start then auto_battle (msgs run in order in a single tx). */
@@ -60,33 +87,33 @@ export function msgsEncounterThenAutoBattle(
 
 /** sell_bag_slot(slot: u64) */
 export function msgSellBag(sender: string, mod: string, slot: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'sell_bag_slot', [], [String(slot)]);
+  return dungeonExecuteMsg(sender, mod, 'sell_bag_slot', [], [b64U64(slot)]);
 }
 
 /** equip_from_bag(bag_slot: u64, main_hand: bool) */
 export function msgEquipFromBag(sender: string, mod: string, bagSlot: number, mainHand: boolean): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'equip_from_bag', [], [String(bagSlot), String(mainHand)]);
+  return dungeonExecuteMsg(sender, mod, 'equip_from_bag', [], [b64U64(bagSlot), b64Bool(mainHand)]);
 }
 
 /** unequip_to_bag(bag_slot: u64, slot_kind: u8) — 0 主手 1 副手 2 护甲 3 戒指 4 鞋 */
 export function msgUnequipToBag(sender: string, mod: string, bagSlot: number, slotKind: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'unequip_to_bag', [], [String(bagSlot), String(slotKind)]);
+  return dungeonExecuteMsg(sender, mod, 'unequip_to_bag', [], [b64U64(bagSlot), b64U8(slotKind)]);
 }
 
 export function msgAdminSetMint(sender: string, mod: string, enabled: boolean): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'admin_set_item_mint_enabled', [], [enabled ? 'true' : 'false']);
+  return dungeonExecuteMsg(sender, mod, 'admin_set_item_mint_enabled', [], [b64Bool(enabled)]);
 }
 
 export function msgMintItemNft(sender: string, mod: string, bagSlot: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'mint_item_nft_from_bag', [], [String(bagSlot)]);
+  return dungeonExecuteMsg(sender, mod, 'mint_item_nft_from_bag', [], [b64U64(bagSlot)]);
 }
 
 export function msgBurnNftToBag(sender: string, mod: string, nftId: string): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'burn_nft_to_bag', [], [nftId]);
+  return dungeonExecuteMsg(sender, mod, 'burn_nft_to_bag', [], [b64U64(nftId)]);
 }
 
 export function msgTransferItemNft(sender: string, mod: string, nftId: string, toAddress: string): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'transfer_item_nft', [], [nftId, toAddress]);
+  return dungeonExecuteMsg(sender, mod, 'transfer_item_nft', [], [b64U64(nftId), b64Address(toAddress)]);
 }
 
 export function msgDeathResetRun(sender: string, mod: string): EncodeObject {
@@ -94,7 +121,7 @@ export function msgDeathResetRun(sender: string, mod: string): EncodeObject {
 }
 
 export function msgUnequipAppend(sender: string, mod: string, slotKind: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'unequip_append', [], [String(slotKind)]);
+  return dungeonExecuteMsg(sender, mod, 'unequip_append', [], [b64U8(slotKind)]);
 }
 
 export function msgSellAllBag(sender: string, mod: string): EncodeObject {
@@ -102,23 +129,23 @@ export function msgSellAllBag(sender: string, mod: string): EncodeObject {
 }
 
 export function msgEnhanceBagSlot(sender: string, mod: string, bagSlot: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'enhance_bag_slot', [], [String(bagSlot)]);
+  return dungeonExecuteMsg(sender, mod, 'enhance_bag_slot', [], [b64U64(bagSlot)]);
 }
 
 export function msgEnhanceEquipSlot(sender: string, mod: string, slotKind: number): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'enhance_equip_slot', [], [String(slotKind)]);
+  return dungeonExecuteMsg(sender, mod, 'enhance_equip_slot', [], [b64U8(slotKind)]);
 }
 
 export function msgAuctionPost(sender: string, mod: string, bagSlot: number, priceGold: string): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'auction_post', [], [String(bagSlot), priceGold]);
+  return dungeonExecuteMsg(sender, mod, 'auction_post', [], [b64U64(bagSlot), b64U64(priceGold)]);
 }
 
 export function msgAuctionCancel(sender: string, mod: string, lotId: string): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'auction_cancel', [], [lotId]);
+  return dungeonExecuteMsg(sender, mod, 'auction_cancel', [], [b64U64(lotId)]);
 }
 
 export function msgAuctionBuy(sender: string, mod: string, lotId: string): EncodeObject {
-  return dungeonExecuteMsg(sender, mod, 'auction_buy', [], [lotId]);
+  return dungeonExecuteMsg(sender, mod, 'auction_buy', [], [b64U64(lotId)]);
 }
 
 export function msgBootstrapAuctionHouse(sender: string, mod: string): EncodeObject {
@@ -138,9 +165,9 @@ export function msgBossHitWorld(
   chip: boolean
 ): EncodeObject {
   return dungeonExecuteMsg(sender, mod, 'boss_hit_world', [], [
-    String(milestone),
-    String(damage),
-    chip ? 'true' : 'false',
+    b64U64(milestone),
+    b64U64(damage),
+    b64Bool(chip),
   ]);
 }
 
@@ -155,9 +182,9 @@ export function msgJumpPortalDiscard(
   const s = slotsDesc.slice(0, 8);
   while (s.length < 8) s.push(0);
   return dungeonExecuteMsg(sender, mod, 'jump_portal_discard', [], [
-    String(targetFloor),
-    String(n),
-    ...s.map((x) => String(x)),
+    b64U64(targetFloor),
+    b64U64(n),
+    ...s.map((x) => b64U64(x)),
   ]);
 }
 

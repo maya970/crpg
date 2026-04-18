@@ -387,17 +387,65 @@ export async function handleGameApi(
       if (!r.ok) throw new Error(r.error || '购买失败');
       return await fullPlayer(ctx);
     }
-    case 'leaderboard':
+    case 'leaderboard': {
+      if (!addr) {
+        return {
+          ok: true,
+          boards: { xp: [], gold: [], weapon: [], armor: [], ring: [] },
+        };
+      }
+      const hero = await ctx.fetchHero();
+      if (!hero) {
+        return {
+          ok: true,
+          boards: { xp: [], gold: [], weapon: [], armor: [], ring: [] },
+        };
+      }
+      const sp = await ctx.fetchDungeonSpawn();
+      const spawnFloor = Math.max(1, Math.min(100000, parseInt(String(sp?.floor ?? '1'), 10) || 1));
+      const { player: p0, inventory: inv0 } = buildPlayerPayload(hero, ctx.items, addr, {
+        dungeonSpawnFloor: spawnFloor,
+        warehouseBagSlots: warehouseSetFromSession(addr),
+      });
+      const p = p0 as Record<string, unknown>;
+      const inv = inv0 as Record<string, unknown>[];
+      const person = {
+        username: String(p.username ?? ''),
+        display_name: String(p.display_name ?? ''),
+        level: Number(p.level) || 1,
+        xp: Number(p.xp) || 0,
+        gold: Number(p.gold) || 0,
+        str_effective: Number(p.str_effective) || 0,
+        str_mod: Number(p.str_mod) || 0,
+        dex_effective: Number(p.dex_effective) || 0,
+        dex_mod: Number(p.dex_mod) || 0,
+        con_effective: Number(p.con_effective) || 0,
+        ac: Number(p.ac) || 0,
+        weapon_dice: String(p.weapon_dice || '1d4'),
+      };
+      const gearRows = (slot: string) =>
+        inv
+          .filter((it) => Number(it.equipped) === 1 && String(it.slot) === slot)
+          .map((it) => ({
+            username: person.username,
+            display_name: person.display_name,
+            item_label: String(it.label || '—'),
+            plus_level: Number(it.plus_level) || 0,
+            score: Number(it.rank_checksum) || 0,
+            damage_dice: String(it.damage_dice || '1d4'),
+          }))
+          .sort((a, b) => b.score - a.score);
       return {
         ok: true,
         boards: {
-          xp: [],
-          gold: [],
-          weapon: [],
-          armor: [],
-          ring: [],
+          xp: [person],
+          gold: [person],
+          weapon: gearRows('weapon'),
+          armor: gearRows('armor'),
+          ring: gearRows('ring'),
         },
       };
+    }
 
     case 'dungeon_world': {
       if (!addr) throw new Error('未连接钱包');
