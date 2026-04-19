@@ -10,6 +10,21 @@ export class LcdTimeoutError extends Error {
   }
 }
 
+/**
+ * Initia REST 查询 Move 资源时，地址与 struct tag 内模块地址常需 **32 字节 hex**（0x + 64 字符），
+ * 短写 `0x249a…` 会导致 404，前端误判「无拍卖行」。
+ * bech32（init1…）原样返回，由 SDK/节点解析。
+ */
+export function canonMoveModuleAddress(addr: string): string {
+  const t = String(addr).trim();
+  if (!t) return t;
+  if (t.toLowerCase().startsWith('init')) return t;
+  if (!/^0x[0-9a-fA-F]+$/i.test(t)) return t;
+  const hex = t.slice(2).toLowerCase();
+  if (hex.length > 64) return '0x' + hex.slice(-64);
+  return '0x' + hex.padStart(64, '0');
+}
+
 function withLcdTimeout<T>(p: Promise<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     const t = setTimeout(() => reject(new LcdTimeoutError()), LCD_FETCH_MS);
@@ -91,9 +106,10 @@ export async function fetchGameStore(
   moduleAddress: string
 ): Promise<GameStoreRaw | null> {
   const client = new RESTClient(lcdUrl);
-  const structTag = `${moduleAddress}::dungeon::GameStore`;
+  const mod = canonMoveModuleAddress(moduleAddress);
+  const structTag = `${mod}::dungeon::GameStore`;
   try {
-    const res = await withLcdTimeout(client.move.resource<GameStoreRaw>(moduleAddress, structTag));
+    const res = await withLcdTimeout(client.move.resource<GameStoreRaw>(mod, structTag));
     return res.data;
   } catch {
     return null;
@@ -106,7 +122,8 @@ export async function fetchHero(
   moduleAddress: string
 ): Promise<HeroRaw | null> {
   const client = new RESTClient(lcdUrl);
-  const structTag = `${moduleAddress}::dungeon::Hero`;
+  const mod = canonMoveModuleAddress(moduleAddress);
+  const structTag = `${mod}::dungeon::Hero`;
   try {
     const res = await withLcdTimeout(client.move.resource<HeroRaw>(playerAddress, structTag));
     return res.data;
@@ -121,9 +138,10 @@ export async function fetchAuctionHouse(
   moduleAddress: string
 ): Promise<AuctionHouseRaw | null> {
   const client = new RESTClient(lcdUrl);
-  const structTag = `${moduleAddress}::dungeon::AuctionHouse`;
+  const mod = canonMoveModuleAddress(moduleAddress);
+  const structTag = `${mod}::dungeon::AuctionHouse`;
   try {
-    const res = await withLcdTimeout(client.move.resource<AuctionHouseRaw>(moduleAddress, structTag));
+    const res = await withLcdTimeout(client.move.resource<AuctionHouseRaw>(mod, structTag));
     return res.data;
   } catch {
     return null;
@@ -135,9 +153,10 @@ export async function fetchWorldDungeon(
   moduleAddress: string
 ): Promise<WorldDungeonRaw | null> {
   const client = new RESTClient(lcdUrl);
-  const structTag = `${moduleAddress}::dungeon::WorldDungeonState`;
+  const mod = canonMoveModuleAddress(moduleAddress);
+  const structTag = `${mod}::dungeon::WorldDungeonState`;
   try {
-    const res = await withLcdTimeout(client.move.resource<WorldDungeonRaw>(moduleAddress, structTag));
+    const res = await withLcdTimeout(client.move.resource<WorldDungeonRaw>(mod, structTag));
     return res.data;
   } catch {
     return null;
@@ -150,7 +169,8 @@ export async function fetchDungeonSpawn(
   moduleAddress: string
 ): Promise<DungeonSpawnRaw | null> {
   const client = new RESTClient(lcdUrl);
-  const structTag = `${moduleAddress}::dungeon::DungeonSpawn`;
+  const mod = canonMoveModuleAddress(moduleAddress);
+  const structTag = `${mod}::dungeon::DungeonSpawn`;
   try {
     const res = await withLcdTimeout(client.move.resource<DungeonSpawnRaw>(playerAddress, structTag));
     return res.data;

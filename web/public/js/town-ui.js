@@ -535,7 +535,7 @@ async function refreshAuction(game, listId) {
   const aucSel = qs('auc-post-item');
   if (data.auction_house_ready === false) {
     el.innerHTML = `<p class="empty-hint" style="margin-bottom:12px">${escapeHtml(
-      '链上尚无拍卖行。请部署包含「首次发布自动初始化」的合约版本并重新发版后刷新；旧部署若从未初始化，需 adventurer 账户执行一次 dungeon::bootstrap_auction_house。'
+      '未读到链上拍卖行资源。① 刷新页面（前端已用 32 字节模块地址查 LCD）。② 若确未初始化：用发布钱包执行 initiad tx move execute <模块0x> dungeon bootstrap_auction_house（见 scripts/bootstrap-chain.sh）。③ 新包含 init_module 时首次发版会自动创建。'
     )}</p>`;
     if (aucPostBtn) aucPostBtn.disabled = true;
     if (aucSel) {
