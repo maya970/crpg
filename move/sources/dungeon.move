@@ -730,7 +730,7 @@ module adventurer::dungeon {
         s5: u64,
         s6: u64,
         s7: u64,
-    ) acquires Hero, WorldDungeonState {
+    ) acquires Hero, WorldDungeonState, DungeonSpawn {
         let a = signer::address_of(account);
         assert!(exists<Hero>(a), E_NO_HERO);
         assert!(exists<WorldDungeonState>(@adventurer), E_NO_WORLD_DUNGEON);

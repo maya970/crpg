@@ -112,10 +112,9 @@ cd initia-adventurer/move
 # minitiad move publish . --from my-publisher
 
 # 示例 B：执行 bootstrap（模块已部署到 adventurer 地址后）
-# minitiad tx move execute <模块部署账户init1或0x> adventurer dungeon bootstrap_game_store \
-#   --from my-publisher
-# minitiad tx move execute <同上> adventurer dungeon bootstrap_auction_house \
-#   --from my-publisher
+# initiad tx move execute <模块地址0x> dungeon bootstrap_game_store --from <key名>
+# initiad tx move execute <同上> dungeon bootstrap_auction_house --from <key名>
+# （3 个位置参数：地址、模块名 dungeon、函数名；不要用 4 段的 adventurer dungeon）
 ```
 
 若 CLI 参数与上述不同：**以官方「执行 Move 合约 entry」文档为准**；也可在链上区块浏览器的 **Contract → Write** 里连接 `adventurer` 钱包调用同名函数。

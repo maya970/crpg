@@ -6,6 +6,6 @@ version = "0.1.0"
 InitiaStdlib = { git = "https://github.com/initia-labs/movevm.git", subdir = "precompile/modules/initia_stdlib", rev = "main" }
 
 [addresses]
-# Overridden at build/deploy with: --named-addresses adventurer=0x...
+# 本地占位。deploy-move.sh 会在构建前临时改成 ADVENTURER_HEX，结束后自动还原；也可手动改成发布钱包 hex。
 adventurer = "0x1"
 std = "0x1"
