@@ -30,12 +30,15 @@ import type { EncodeObject } from '@cosmjs/proto-signing';
 import { handleGameApi } from './gameApiBridge';
 import type { ItemDef } from './heroAdapter';
 import { KitErrorBoundary } from './KitErrorBoundary';
+import { autosignBuildSummary } from './autosignConfig';
 
 const lcdUrl = import.meta.env.VITE_LCD_URL ?? '';
 const moduleAddr = import.meta.env.VITE_MOVE_MODULE_ADDR ?? '';
 const gasPriceStr = import.meta.env.VITE_GAS_PRICE ?? '0.025uinit';
 
 const INITIA_TESTNET_FAUCET = 'https://app.testnet.initia.xyz/faucet';
+
+const AUTOSIGN_DOCS = 'https://docs.initia.xyz/interwovenkit/features/autosign/configuration';
 
 function isLikelyUnfundedAccountMessage(msg: string): boolean {
   return /does not exist on chain|Send some tokens before trying to query sequence/i.test(msg);
@@ -88,6 +91,7 @@ function AppMain() {
 
   const isMainnet = import.meta.env.VITE_NETWORK === 'mainnet';
   const showTestnetFaucet = !isMainnet;
+  const autosign = autosignBuildSummary();
 
   useEffect(() => {
     void fetch('/data/items.json')
@@ -296,6 +300,28 @@ function AppMain() {
         {navBtn('/auction.html', '拍卖')}
         {navBtn('/leaderboard.html', '排行')}
         {navBtn('/codex.html', '图鉴')}
+        {autosign.on ? (
+          <span
+            title={
+              autosign.mode === 'explicit'
+                ? `显式模式：仅链 ${autosign.chainId} 的 MsgExecute`
+                : '简单模式：常规 Move 执行可走 Auto-Sign（首次仍要在钱包里选授权时长）'
+            }
+            style={{ fontSize: '0.72rem', color: 'var(--accent, #5eead4)', whiteSpace: 'nowrap' }}
+          >
+            无感签名
+            {autosign.mode === 'explicit' ? ` · ${autosign.chainId}` : ''}
+          </span>
+        ) : (
+          <a
+            href={AUTOSIGN_DOCS}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: '0.72rem', color: 'var(--muted, #7a8fa3)', whiteSpace: 'nowrap' }}
+          >
+            Auto-Sign 说明
+          </a>
+        )}
         <span style={{ flex: 1 }} />
         {!configOk && (
           <span style={{ color: 'var(--danger, #f87171)', fontSize: '0.75rem' }}>
@@ -621,8 +647,6 @@ function AppMain() {
   );
 }
 
-const AUTOSIGN_DOCS = 'https://docs.initia.xyz/interwovenkit/features/autosign/configuration';
-
 function AppSafeBanner() {
   return (
     <div
@@ -650,7 +674,10 @@ function AppSafeBanner() {
         </a>{' '}
         把<strong>你的站点域名</strong>加入 Privy 允许列表并启用 Auto-Sign 后，再在环境变量里设{' '}
         <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_ENABLE_AUTOSIGN=true</code>
-        并重新部署。<strong>未配好前不要打开</strong>，否则可能卡在首屏。钱包请用顶栏同一套 Initia 连接（非浏览器插件钱包路径）。
+        （简单模式）或{' '}
+        <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_ENABLE_AUTOSIGN=explicit</code>
+        并可选 <code style={{ background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>VITE_CHAIN_ID</code>（默认 initiation-2，仅放行 MsgExecute），然后重新部署。
+        <strong>未配好前不要打开</strong>，否则可能卡在首屏。钱包请用顶栏同一套 Initia 连接（非浏览器插件钱包路径）。
       </p>
     </div>
   );

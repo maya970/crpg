@@ -14,6 +14,7 @@ import {
   injectStyles,
 } from '@initia/interwovenkit-react';
 import interwovenKitStyles from '@initia/interwovenkit-react/styles.js';
+import { resolveInterwovenKitEnableAutoSign } from './autosignConfig';
 
 const queryClient = new QueryClient();
 
@@ -28,8 +29,8 @@ const kitEnv =
     ? MAINNET
     : TESTNET;
 
-/** 部分域名在未配置 Privy 时 enableAutoSign 会卡住首屏，默认关闭；需要时在 Vercel 设 VITE_ENABLE_AUTOSIGN=true */
-const enableAutoSign = import.meta.env.VITE_ENABLE_AUTOSIGN === 'true';
+/** 部分域名在未配置 Privy 时 enableAutoSign 会卡住首屏，默认关闭；见 `autosignConfig` 与 `.env.example` */
+const enableAutoSign = resolveInterwovenKitEnableAutoSign();
 
 function KitSuspenseFallback() {
   return (
