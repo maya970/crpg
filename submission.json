@@ -1,0 +1,12 @@
+{
+  "project_name": "Initia Adventurer",
+  "repo_url": "https://github.com/maya970/crpg",
+  "commit_sha": "YOUR_COMMIT_SHA_HERE",
+  "rollup_chain_id": "initiation-2",
+  "deployed_address": "0x249A0913DB1FA0D5D8B425745B3277F61988A09F",
+  "vm": "move",
+  "native_feature": "auto-signing",
+  "core_logic_path": "move/sources/dungeon.move",
+  "native_feature_frontend_path": "web/src/App.tsx",
+  "demo_video_url": "https://www.youtube.com/watch?v=r9-YMHvWNzY"
+}
