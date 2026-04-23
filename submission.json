@@ -1,7 +1,7 @@
 {
   "project_name": "Initia Adventurer",
   "repo_url": "https://github.com/maya970/crpg",
-  "commit_sha": "YOUR_COMMIT_SHA_HERE",
+  "commit_sha": "e1c669ee5dee50d380bc295e6002d4e79bf22621",
   "rollup_chain_id": "initiation-2",
   "deployed_address": "0x249A0913DB1FA0D5D8B425745B3277F61988A09F",
   "vm": "move",
