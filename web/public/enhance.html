@@ -1,61 +1,61 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>强化工坊 · 冒险者地牢</title>
+  <title>Adventurer · Enhance</title>
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body class="rpg-view-town standalone-rpg-body">
   <script>window.RPG_LOGIN_URL = 'login.html';</script>
   <div id="toast"></div>
   <div class="standalone-page">
-    <nav class="town-nav" aria-label="页面导航">
-      <a href="town.html">主城</a>
-      <a href="codex.html">魔物图鉴</a>
-      <a href="leaderboard.html">排行榜</a>
-      <a href="enhance.html" aria-current="page">强化工坊</a>
-      <a href="auction.html">拍卖行</a>
+    <nav class="town-nav" aria-label="Main navigation">
+      <a href="town.html">Town</a>
+      <a href="codex.html">Bestiary</a>
+      <a href="leaderboard.html">Rankings</a>
+      <a href="enhance.html" aria-current="page">Enhance</a>
+      <a href="auction.html">Market</a>
     </nav>
     <header class="standalone-header">
-      <h1>强化工坊</h1>
-      <p class="standalone-sub">在此可查看属性、整理装备并强化。成功率与消耗以服务器为准；失败仍会扣金币。当前金币：<strong id="enh-gold">—</strong></p>
-      <button type="button" id="btn-enh-refresh" class="auth-btn primary" style="max-width:220px;margin-top:8px">刷新全部数据</button>
+      <h1>Enhance hall</h1>
+      <p class="standalone-sub">Review stats, manage gear, and try enhancements. Costs apply even on failure. Gold: <strong id="enh-gold">—</strong></p>
+      <button type="button" id="btn-enh-refresh" class="auth-btn primary" style="max-width:220px;margin-top:8px">Refresh all</button>
     </header>
 
     <div class="enhance-panels-grid">
       <div class="panel">
-        <h2>角色属性</h2>
-        <p class="panel-intro">与主城同步的数值概要。</p>
+        <h2>Hero stats</h2>
+        <p class="panel-intro">Same numbers as in town.</p>
         <div id="town-stats" class="town-stats-body"></div>
       </div>
       <div class="panel">
-        <h2>装备栏</h2>
-        <p class="panel-intro">主手（右）与副手（左）为独立槽位；副手不参与主手伤害骰。</p>
+        <h2>Equipment</h2>
+        <p class="panel-intro">Main and off hand are separate slots.</p>
         <div id="equip-slots" class="equip-slots"></div>
       </div>
       <div class="panel">
-        <h2>背包</h2>
-        <p class="panel-intro">未装备物品可在此装备到主手或副手。</p>
+        <h2>Bag</h2>
+        <p class="panel-intro">Unequipped items; equip to a hand from here.</p>
         <div id="bag-list" class="bag-list"></div>
       </div>
       <div class="panel">
-        <h2>物品详情</h2>
+        <h2>Details</h2>
         <div id="item-detail-pane" class="item-detail-pane"></div>
       </div>
     </div>
 
-    <h2 class="enhance-list-heading">可强化装备</h2>
+    <h2 class="enhance-list-heading">Gear you can enhance</h2>
     <div id="enhance-list" class="enhance-list"></div>
   </div>
 
   <div id="sell-one-modal" class="rpg-modal" hidden>
     <div class="rpg-modal-card" role="dialog" aria-modal="true" aria-labelledby="sell-one-title-enh">
-      <h3 id="sell-one-title-enh" class="rpg-modal-title">确认出售？</h3>
+      <h3 id="sell-one-title-enh" class="rpg-modal-title">Sell item?</h3>
       <p id="sell-one-summary" class="rpg-modal-text"></p>
       <div class="rpg-modal-actions">
-        <button type="button" id="sell-one-cancel" class="rpg-modal-btn">取消</button>
-        <button type="button" id="sell-one-confirm" class="rpg-modal-btn danger">确定出售</button>
+        <button type="button" id="sell-one-cancel" class="rpg-modal-btn">Cancel</button>
+        <button type="button" id="sell-one-confirm" class="rpg-modal-btn danger">Sell</button>
       </div>
     </div>
   </div>

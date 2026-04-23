@@ -13,7 +13,7 @@
   };
 
   const IMG_EXT = ['png', 'jpg', 'jpeg', 'webp'];
-  /** 本地素材包：0001.gif / 0002.gif …（怪物、物品、地砖通用） */
+  /** Numbered art: 0001.gif, 0002.gif, … */
   const FRAME_EXTS = ['gif', 'png', 'jpg', 'jpeg', 'webp'];
 
   function pad4(n) {
@@ -46,7 +46,7 @@
     return n > 0 && (n & (n - 1)) === 0;
   }
 
-  /** 适配本地 PNG/JPG 与 Arweave：NPOT 贴图关闭 repeat/mipmap，避免整面黑 */
+  /** NPOT textures: no repeat/mipmaps to avoid black planes */
   function configureTextureForMap(tex, opts) {
     const img = tex.image;
     const w = img && img.width;
@@ -77,7 +77,7 @@
     tex.needsUpdate = true;
   }
 
-  /** 物品 48×64 雪碧图：有效像素约在 (16,21) 的 20×20，用于手部武器贴图裁切 */
+  /** 48×64 item sheet crop for hand weapon preview */
   const HAND_ITEM_ATLAS = { sheetW: 48, sheetH: 64, cropX: 16, cropY: 21, cropW: 20, cropH: 20 };
 
   function applyHandItemAtlasCrop(tex) {
@@ -129,10 +129,7 @@
     return steps;
   }
 
-  /**
-   * 魔物贴图：有正式编号时只尝试 img/monsters|monster/NNNN.*，再才回退远程，
-   * 避免同一 key 这次 0001、下次因 404 落到别的图。
-   */
+  /** Monster art URLs: prefer numbered local files, then remote */
   function urlsMonster(key, remote, catalogEntry, spriteFileIndex) {
     const out = [];
     const n = spriteFileIndex != null ? Math.floor(Number(spriteFileIndex)) : 0;
@@ -166,7 +163,7 @@
     return out;
   }
 
-  /** 宝箱仅用 items：0000、0002、0003、0004 四张，按序号轮换 */
+  /** Chest uses rotating item frames */
   const CHEST_ITEM_FRAMES = [0, 2, 3, 4];
 
   function urlsChestVariant(chestIndex) {
@@ -177,7 +174,7 @@
     return out;
   }
 
-  /** 楼梯/传送门固定使用 tiles/0000.*（编号 0 → 0000） */
+  /** Stairs / portal use tile 0000 */
   function urlsPortalStairs() {
     const out = [];
     pushNumberedFrame(out, 'img/tiles', 0);
@@ -185,7 +182,7 @@
     return out;
   }
 
-  /** 每 10 层一组：1–10 → 地1/墙2/顶3，11–20 → 4/5/6…；编号按周期取模循环 */
+  /** Tile set cycles every 10 floors */
   const TILE_TRIPLE_PERIOD = 9996;
 
   function tileIndicesForFloor(floor) {
@@ -265,7 +262,7 @@
     return list;
   }
 
-  /** 并发预加载图片（含 404），解码进浏览器缓存供 Three.TextureLoader 复用 */
+  /** Preload images (404 ok) into browser cache */
   function preloadImageUrls(urls, onProgress) {
     const total = urls.length;
     const concurrency = 8;
@@ -301,7 +298,7 @@
 
   let monsterCatalog = {};
   let monsterSpriteIndexByKey = {};
-  /** item_key → image_num（旧背包 image_num=0 时用于地城武器贴图回退） */
+  /** item_key → image_num fallback for weapon sprites */
   let itemImageNumByKey = {};
 
   function rebuildMonsterSpriteIndex() {
@@ -429,7 +426,7 @@
       ac,
       to_hit,
       damage: def.damage,
-      label: def.label || '怪物',
+      label: def.label || 'Monster',
       sprite: def.sprite || TEX.wall,
       desc: def.desc || '',
     };
@@ -521,7 +518,7 @@
     return null;
   }
 
-  /** 与怪格相邻且中间无墙，才允许近战（禁止隔墙互打） */
+  /** Melee only through open adjacent cells */
   function canMeleeFromCell(game, px, py, m) {
     if (!m || m.hp <= 0 || !game.maze) return false;
     if (Math.abs(m.x - px) + Math.abs(m.y - py) !== 1) return false;
@@ -587,7 +584,7 @@
     return null;
   }
 
-  /** 与怪相邻且中间无墙时优先打「眼前」挡路的那只 */
+  /** Prefer the monster directly blocking the lane */
   function pickFightMonster(game) {
     const px = game.player.x;
     const py = game.player.y;
@@ -672,7 +669,7 @@
     return t;
   }
 
-  /** 平面默认中心在原点，贴图常偏上；将几何体整体上移半格，使本地 y=0 为「脚底」贴地 */
+  /** Shift sprite plane so feet sit on the floor */
   const SPRITE_FOOT_CLEARANCE = 0.02;
 
   function createSpriteFromUrls(scene, urls, scale, feetYOffset, loader) {
@@ -708,12 +705,12 @@
     return mesh;
   }
 
-  const DUNGEON_RARITY_ZH = {
-    common: '普通',
-    uncommon: '优秀',
-    rare: '稀有',
-    epic: '史诗',
-    legendary: '传说',
+  const DUNGEON_RARITY_LABELS = {
+    common: 'Common',
+    uncommon: 'Uncommon',
+    rare: 'Rare',
+    epic: 'Epic',
+    legendary: 'Legendary',
   };
 
   function dungeonDiceTier(dice) {
@@ -770,12 +767,12 @@
     _rotationTargetKey: '',
     _dungeonSheetSig: '',
     _dungeonLoading: false,
-    /** 本会话内素材只完整拉取一次；回城再进地城不重复预加载 */
+    /** Full asset preload once per session */
     _dungeonAssetsReady: false,
     _preloadAllPromise: null,
-    /** 回城时自增，作废进行中的后台预加载 UI 回调 */
+    /** Invalidate in-flight background preload when leaving */
     _dungeonBgPreloadGen: 0,
-    /** 进入地城时从 player 快照的战斗数值；击杀同步后由 applyPlayerPayload 刷新 */
+    /** Combat snapshot from player when entering dungeon */
     _dungeonCombat: null,
 
     toast(msg) {
@@ -796,7 +793,7 @@
 
     pushLocalLog(text) {
       const el = document.getElementById('local-combat-log');
-      const time = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
       const line = `[${time}] ${text}`;
       this.localLogLines.unshift(line);
       this.localLogLines = this.localLogLines.slice(0, 50);
@@ -1086,7 +1083,7 @@
         .toLowerCase()
         .replace(/[^a-z0-9_-]/g, '');
       const key = k || 'common';
-      const z = DUNGEON_RARITY_ZH[key] || String(r || 'common');
+      const z = DUNGEON_RARITY_LABELS[key] || String(r || 'common');
       return `<span class="rarity-tag rarity-${key}">${this.escapeHtml(z)}</span>`;
     },
 
@@ -1132,11 +1129,11 @@
       if (sig === this._dungeonSheetSig) return;
       this._dungeonSheetSig = sig;
       const slotDefs = [
-        { key: 'weapon_main', label: '主手(右)' },
-        { key: 'weapon_off', label: '副手(左)' },
-        { key: 'armor', label: '护甲' },
-        { key: 'ring', label: '戒指' },
-        { key: 'boots', label: '鞋' },
+        { key: 'weapon_main', label: 'Main (R)' },
+        { key: 'weapon_off', label: 'Off (L)' },
+        { key: 'armor', label: 'Armor' },
+        { key: 'ring', label: 'Ring' },
+        { key: 'boots', label: 'Boots' },
       ];
       let equipHtml = '';
       slotDefs.forEach(({ key, label }) => {
@@ -1153,7 +1150,7 @@
         } else {
           eq = inv.find((x) => Number(x.equipped) === 1 && x.slot === key);
         }
-        const name = eq ? this.escapeHtml(eq.label) : '（空）';
+        const name = eq ? this.escapeHtml(eq.label) : 'Empty';
         const meta = eq
           ? `${eq.damage_dice ? this.diceTagHtml(eq.damage_dice) + ' · ' : ''}${this.rarityTagHtml(eq.rarity || 'common')}`
           : '';
@@ -1169,7 +1166,7 @@
                 `<div>${this.escapeHtml(it.label)} · ${this.rarityTagHtml(it.rarity || 'common')}</div>`
             )
             .join('')
-        : '<div>（背包空）</div>';
+        : '<div>Bag empty</div>';
       let attrHtml = '';
       if (p) {
         const fmt = (n) => (Number(n) >= 0 ? '+' : '') + n;
@@ -1183,23 +1180,23 @@
         const dexNaked = dmb != null ? fmt(dmb) : fmt(Math.floor((Number(p.dex) - 10) / 2));
         const ad = p.armor_dice || '1d4';
         attrHtml = `
-          <div class="ds-line">等级 ${p.level} · 经验 ${p.xp} · 金币 ${p.gold}</div>
-          <div class="ds-line">生命 ${Math.max(0, Math.floor(this.player.hp))} / ${this.player.hpMax}（上限 ${p.hp_max}）</div>
-          <div class="ds-line">STR：基础 ${p.str} → 有效 ${se}，调整值 ${fmt(p.str_mod)}（裸装调整 ${strNaked}）</div>
-          <div class="ds-line">DEX：基础 ${p.dex} → 有效 ${de}，调整值 ${fmt(p.dex_mod)}（裸装调整 ${dexNaked}）</div>
-          <div class="ds-line">CON：基础 ${p.con} → 有效 ${ce}</div>
+          <div class="ds-line">Lv ${p.level} · XP ${p.xp} · Gold ${p.gold}</div>
+          <div class="ds-line">HP ${Math.max(0, Math.floor(this.player.hp))} / ${this.player.hpMax} (max ${p.hp_max})</div>
+          <div class="ds-line">STR base ${p.str} → effective ${se}, mod ${fmt(p.str_mod)} (naked ${strNaked})</div>
+          <div class="ds-line">DEX base ${p.dex} → effective ${de}, mod ${fmt(p.dex_mod)} (naked ${dexNaked})</div>
+          <div class="ds-line">CON base ${p.con} → effective ${ce}</div>
           <div class="ds-line">INT ${p.int_stat} · WIS ${p.wis} · CHA ${p.cha}</div>
-          <div class="ds-line">有效 AC ${this.ac}</div>
-          <div class="ds-line">武器 ${this.diceTagHtml(this.weaponDice)}：骰面 ${N(p.weapon_roll_min, 1)}～${N(p.weapon_roll_max, 1)} · 命中伤害 ${N(p.weapon_hit_dmg_min, 1)}～${N(p.weapon_hit_dmg_max, 1)}（含力量）</div>
-          <div class="ds-line">护甲 ${this.diceTagHtml(ad)}：骰面 ${N(p.armor_roll_min, 1)}～${N(p.armor_roll_max, 1)} · 护甲件 AC +${N(p.armor_ac_bonus, 0)}</div>
-          <div class="ds-line">陷阱：基础 ${N(p.trap_raw_min, 4)}～${N(p.trap_raw_max, 11)} · 鞋减震 ${N(p.trap_mitig_min, 0)}～${N(p.trap_mitig_max, 0)} · 最终 ${N(p.trap_final_dmg_min, 1)}～${N(p.trap_final_dmg_max, 11)}</div>`;
+          <div class="ds-line">AC ${this.ac}</div>
+          <div class="ds-line">Weapon ${this.diceTagHtml(this.weaponDice)}: faces ${N(p.weapon_roll_min, 1)}–${N(p.weapon_roll_max, 1)} · hit damage ${N(p.weapon_hit_dmg_min, 1)}–${N(p.weapon_hit_dmg_max, 1)} (with STR)</div>
+          <div class="ds-line">Armor ${this.diceTagHtml(ad)}: faces ${N(p.armor_roll_min, 1)}–${N(p.armor_roll_max, 1)} · armor AC +${N(p.armor_ac_bonus, 0)}</div>
+          <div class="ds-line">Traps: raw ${N(p.trap_raw_min, 4)}–${N(p.trap_raw_max, 11)} · boots soften ${N(p.trap_mitig_min, 0)}–${N(p.trap_mitig_max, 0)} · about ${N(p.trap_final_dmg_min, 1)}–${N(p.trap_final_dmg_max, 11)}</div>`;
       }
       el.innerHTML = `
-        <h3>角色属性（含装备）</h3>
+        <h3>Hero (with gear)</h3>
         ${attrHtml || '<div class="ds-line">—</div>'}
-        <h3>当前装备</h3>
+        <h3>Equipped</h3>
         <div class="ds-equip">${equipHtml}</div>
-        <h3>背包（未装备，最多显示 16 件）</h3>
+        <h3>Bag (first 16 unequipped)</h3>
         <div class="ds-bag">${bagHtml}</div>
       `;
     },
@@ -1303,7 +1300,7 @@
           to_hit: 3,
           damage: '1d6',
           sprite: TEX.wall,
-          label: '未知魔物',
+          label: 'Unknown foe',
           desc: '',
         };
         const def = scaleMonster(raw, levelIndex);
@@ -1331,7 +1328,7 @@
           ac: def.ac,
           to_hit: def.to_hit,
           damage: def.damage,
-          label: def.label || '怪物',
+          label: def.label || 'Monster',
           desc: def.desc,
           mesh,
         });
@@ -1464,9 +1461,9 @@
         const mitig = lo + Math.floor(Math.random() * (hi - lo + 1));
         const dmg = Math.max(1, raw - mitig);
         this.player.hp -= dmg;
-        this.toast('陷阱! 基础 ' + raw + ' · 减免 ' + mitig + ' → -' + dmg + ' HP');
+        this.toast('Trap! Raw ' + raw + ' · softened ' + mitig + ' → -' + dmg + ' HP');
         this.pushLocalLog(
-          `第${this.floor}层：触发陷阱，基础 ${raw}，鞋减震 ${mitig}，实际失去 ${dmg} 生命`
+          `Floor ${this.floor}: trap raw ${raw}, boots ${mitig}, lost ${dmg} HP`
         );
         this.flash();
         this.traps = this.traps.filter((t) => !(t.x === x && t.y === y));
@@ -1483,24 +1480,24 @@
           const m = data.mint || {};
           const xpg = Number(m.xp_gained) || 0;
           const gdg = Number(m.gold_gained) || 0;
-          let msg = `宝箱：+${xpg} 经验 · +${gdg} 金币`;
-          if (m.item) msg += ' · 获得「' + m.item.label + '」';
+          let msg = `Chest: +${xpg} XP · +${gdg} gold`;
+          if (m.item) msg += ' · got "' + m.item.label + '"';
           this.toast(msg);
           this.pushLocalLog(
-            `第${this.floor}层：开启宝箱 · +${xpg} 经验 · +${gdg} 金币` +
+            `Floor ${this.floor}: chest · +${xpg} XP · +${gdg} gold` +
               (m.item ? ` · 「${m.item.label}」` : '')
           );
           this.player.hp = Math.min(this.player.hp, this.player.hpMax);
         } catch (e) {
-          this.toast('同步失败: ' + (e.message || e));
+          this.toast('Sync failed: ' + (e.message || e));
         } finally {
           this.combatLock = false;
         }
       }
       if (x === COLS - 2 && y === ROWS - 2) {
         const next = this.floor + 1;
-        this.toast('进入第 ' + next + ' 层…');
-        this.pushLocalLog(`抵达楼梯，进入第 ${next} 层`);
+        this.toast('Entering floor ' + next + '…');
+        this.pushLocalLog(`Stairs — entering floor ${next}`);
         this.buildFloor(next);
       }
     },
@@ -1512,10 +1509,10 @@
       } catch (_) {
         /* ignore */
       }
-      this.toast('倒下… 从第 1 层重新开始');
+      this.toast('You fell… restarting from floor 1');
       this.player.hp = this.player.hpMax;
       this.floor = 1;
-      this.pushLocalLog('角色倒下，从第 1 层重新开始');
+      this.pushLocalLog('Hero fell — restart from floor 1');
       this.buildFloor(1);
       this.combatLock = false;
     },
@@ -1538,9 +1535,9 @@
       if (hit) {
         const dmg = rollDice(wd) + sm;
         m.hp -= Math.max(1, dmg);
-        msg = `命中 ${m.label} (-${dmg})`;
+        msg = `Hit ${m.label} (-${dmg})`;
       } else {
-        msg = '未命中 ' + m.label;
+        msg = 'Missed ' + m.label;
       }
       if (m.hp > 0) {
         const mRoll = Math.floor(Math.random() * 20) + 1 + m.to_hit;
@@ -1548,14 +1545,14 @@
         if (mHit) {
           const md = rollDice(m.damage);
           this.player.hp -= md;
-          msg += ` · 被反击 -${md}`;
+          msg += ` · counter -${md}`;
           this.flash();
         } else {
-          msg += ' · 怪物未命中';
+          msg += ' · foe missed';
         }
       }
       this.toast(msg);
-      this.pushLocalLog(`第${this.floor}层：${msg}`);
+      this.pushLocalLog(`Floor ${this.floor}: ${msg}`);
       if (m.hp <= 0) {
         this.scene.remove(m.mesh);
         try {
@@ -1575,16 +1572,16 @@
           const mint = data.mint || {};
           const xpg = Number(mint.xp_gained) || 0;
           const gdg = Number(mint.gold_gained) || 0;
-          let extra = `击败：+${xpg} 经验 · +${gdg} 金币`;
-          if (mint.item) extra += ' · 获得「' + mint.item.label + '」';
+          let extra = `Defeated: +${xpg} XP · +${gdg} gold`;
+          if (mint.item) extra += ' · got "' + mint.item.label + '"';
           this.toast(extra);
           this.pushLocalLog(
-            `第${this.floor}层：击败 ${m.label} · +${xpg} 经验 · +${gdg} 金币` +
+            `Floor ${this.floor}: defeated ${m.label} · +${xpg} XP · +${gdg} gold` +
               (mint.item ? ` · 「${mint.item.label}」` : '')
           );
           this.player.hp = Math.min(this.player.hp, this.player.hpMax);
         } catch (e) {
-          this.toast('同步失败: ' + (e.message || e));
+          this.toast('Sync failed: ' + (e.message || e));
         }
         this.monsters = this.monsters.filter((x) => x !== m);
       }
@@ -1592,7 +1589,7 @@
       this.combatLock = false;
     },
 
-    /** 仅 mode==='dungeon' 时执行：回城后挂机停止，全局只有一个地城逻辑在跑 */
+    /** Auto-explore tick only while in dungeon mode */
     autopilotTick() {
       if (this._dungeonLoading) return;
       if (this.mode !== 'dungeon' || this.combatLock) return;
@@ -1614,7 +1611,7 @@
     },
 
     /**
-     * 全量 URL 预加载只执行一次；并发调用共享同一 Promise。
+     * One shared promise for full URL preload.
      * @param {function(number): void} [onProgress] 0..1
      */
     preloadAllDungeonAssetsOnce(onProgress) {
@@ -1647,7 +1644,7 @@
         if (fill) fill.style.width = p + '%';
         if (pct) pct.textContent = p + '%';
         if (barWrap) barWrap.setAttribute('aria-valuenow', String(p));
-        if (label) label.textContent = '正在加载地城素材（' + urls.length + ' 个地址）…';
+        if (label) label.textContent = 'Loading dungeon art (' + urls.length + ' files)…';
       };
       setProgress(0);
       await this.preloadAllDungeonAssetsOnce(setProgress);
@@ -1663,18 +1660,18 @@
           if (myGen !== this._dungeonBgPreloadGen) return;
           if (!hint) return;
           hint.hidden = false;
-          hint.textContent = '素材后台加载 ' + Math.min(100, Math.round(r * 100)) + '%';
+          hint.textContent = 'Background load ' + Math.min(100, Math.round(r * 100)) + '%';
         });
         if (myGen !== this._dungeonBgPreloadGen) return;
         if (hint) {
-          hint.textContent = '素材已缓存';
+          hint.textContent = 'Assets cached';
           setTimeout(() => {
-            if (hint && hint.textContent === '素材已缓存') hint.hidden = true;
+            if (hint && hint.textContent === 'Assets cached') hint.hidden = true;
           }, 2200);
         }
       } catch (e) {
         if (myGen === this._dungeonBgPreloadGen) {
-          this.toast('后台加载: ' + (e.message || e));
+          this.toast('Background load: ' + (e.message || e));
           if (hint) hint.hidden = true;
         }
       }
@@ -1716,8 +1713,8 @@
       this.buildFloor(1);
       this.cacheDungeonCombatFromPlayer();
       this.updateDungeonSheet();
-      this.pushLocalLog('进入地下城，开始挂机探索');
-      this.toast('挂机探索 — 无限层 · 越深越强');
+      this.pushLocalLog('Entered the dungeon — auto explore on');
+      this.toast('Auto explore — endless floors, deeper is harder');
     },
 
     openDungeonEntry() {
@@ -1791,22 +1788,22 @@
           if (p) {
             const hitR =
               p.weapon_hit_dmg_min != null
-                ? ` 命中${N(p.weapon_hit_dmg_min, 1)}～${N(p.weapon_hit_dmg_max, 1)}`
+                ? ` hit ${N(p.weapon_hit_dmg_min, 1)}–${N(p.weapon_hit_dmg_max, 1)}`
                 : '';
             const tr =
               p.trap_final_dmg_min != null
-                ? ` · 陷阱承${N(p.trap_final_dmg_min, 1)}～${N(p.trap_final_dmg_max, 11)}`
+                ? ` · traps ~${N(p.trap_final_dmg_min, 1)}–${N(p.trap_final_dmg_max, 11)}`
                 : '';
-            hud.innerHTML = `第 ${this.floor} 层 · HP ${Math.max(0, Math.floor(this.player.hp))}/${
+            hud.innerHTML = `Floor ${this.floor} · HP ${Math.max(0, Math.floor(this.player.hp))}/${
               this.player.hpMax
-            } · AC ${this.ac} · Lv${p.level} · 武器 ${this.weaponDice}${hitR}${tr}`;
+            } · AC ${this.ac} · Lv${p.level} · ${this.weaponDice}${hitR}${tr}`;
           } else {
-            hud.innerHTML = `第 ${this.floor} 层 · 生命 ${Math.max(0, Math.floor(this.player.hp))}/${
+            hud.innerHTML = `Floor ${this.floor} · HP ${Math.max(0, Math.floor(this.player.hp))}/${
               this.player.hpMax
-            } · 护甲 ${this.ac} · 武器 ${this.weaponDice}`;
+            } · AC ${this.ac} · ${this.weaponDice}`;
           }
         } else {
-          hud.innerHTML = '在主城 — 使用下方面板管理角色，然后进入地下城';
+          hud.innerHTML = 'In town — manage your hero below, then enter the dungeon';
         }
       }
       if (this.mode === 'dungeon') this.updateDungeonSheet();
@@ -1862,7 +1859,7 @@
         .catch(() => {});
     },
 
-    /** 仅地下城页：加载数据、Three、玩家；不打开主城 UI */
+    /** Dungeon page bootstrap */
     async bootstrapDungeonScene() {
       await this._loadDungeonDataJson();
       if (!this.renderer) {
@@ -1878,7 +1875,7 @@
       }
     },
 
-    /** 单页整合模式：登录后进主城（保留兼容） */
+    /** Legacy single-page flow */
     async bootstrap() {
       await this._loadDungeonDataJson();
       if (!this.renderer) {
@@ -1958,7 +1955,7 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         await g.preloadDungeonAssetsWithBar();
       } catch (e) {
-        g.toast('预加载异常: ' + (e.message || e));
+        g.toast('Preload issue: ' + (e.message || e));
       } finally {
         g._dungeonLoading = false;
         if (ov) ov.hidden = true;

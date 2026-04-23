@@ -4,9 +4,7 @@ type Props = { children: ReactNode };
 
 type State = { err: Error | null };
 
-/**
- * 仅包住使用 InterwovenKit hooks 的区域。若钱包壳在首屏抛错，外层仍可显示提示条。
- */
+/** Wraps the wallet-powered game shell. */
 export class KitErrorBoundary extends Component<Props, State> {
   state: State = { err: null };
 
@@ -35,9 +33,9 @@ export class KitErrorBoundary extends Component<Props, State> {
             overflow: 'auto',
           }}
         >
-          <p style={{ margin: '0 0 0.75rem', color: '#fca5a5', fontWeight: 600 }}>钱包界面加载失败</p>
+          <p style={{ margin: '0 0 0.75rem', color: '#fca5a5', fontWeight: 600 }}>Could not load the wallet panel</p>
           <p style={{ margin: '0 0 0.75rem', color: '#94a3b8' }}>
-            常见原因：当前域名未在 Initia / Privy（InterwovenKit）后台加入允许列表；或浏览器插件拦截了脚本。
+            Try refreshing the page, disabling extensions that block scripts, or opening the site in another browser.
           </p>
           <pre
             style={{
@@ -52,12 +50,7 @@ export class KitErrorBoundary extends Component<Props, State> {
           >
             {msg}
           </pre>
-          <p style={{ margin: '1rem 0 0', color: '#64748b', fontSize: 13 }}>
-            文档：{' '}
-            <a href="https://docs.initia.xyz/interwovenkit" style={{ color: '#5eead4' }}>
-              InterwovenKit
-            </a>
-          </p>
+          <p style={{ margin: '1rem 0 0', color: '#64748b', fontSize: 13 }}>If the problem continues, contact support.</p>
         </div>
       );
     }

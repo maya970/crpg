@@ -27,7 +27,7 @@ async function renderEnhanceList(game) {
     (it) => ['weapon', 'armor', 'ring', 'boots'].includes(it.slot) && (Number(it.plus_level) || 0) < 20
   );
   if (!items.length) {
-    host.innerHTML = '<p class="empty-hint">没有可强化的装备（或已全部 +20）。</p>';
+    host.innerHTML = '<p class="empty-hint">Nothing here can be enhanced (or everything is already +20).</p>';
     return;
   }
   for (const it of items) {
@@ -40,7 +40,7 @@ async function renderEnhanceList(game) {
     const row = document.createElement('div');
     row.className = 'enhance-row';
     if (!prev.ok) {
-      row.innerHTML = `<div class="enhance-row-main">${escapeHtml(it.label)} — ${escapeHtml(prev._err || '无法预览')}</div>`;
+      row.innerHTML = `<div class="enhance-row-main">${escapeHtml(it.label)} — ${escapeHtml(prev._err || 'Preview unavailable')}</div>`;
       host.appendChild(row);
       continue;
     }
@@ -51,13 +51,13 @@ async function renderEnhanceList(game) {
     const dTag = typeof TownUI !== 'undefined' && TownUI.diceTagHtml ? TownUI.diceTagHtml(it.damage_dice || '1d4') : escapeHtml(String(it.damage_dice || '1d4'));
     main.innerHTML = `
       <strong>${escapeHtml(it.label)}</strong> ${rTag} +${pl} → +${prev.next_plus}<br>
-      消耗 <strong>${prev.gold_cost}</strong> 金币 · 成功率约 <strong>${prev.chance_percent}%</strong>
-      · 骰子难度系数 <strong>${prev.dice_difficulty}</strong>（伤害骰 ${dTag} 不变）
+      Costs <strong>${prev.gold_cost}</strong> gold · about <strong>${prev.chance_percent}%</strong> success
+      · difficulty <strong>${prev.dice_difficulty}</strong> (damage dice ${dTag} unchanged)
     `;
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'auth-btn primary enhance-action-btn';
-    btn.textContent = '尝试强化';
+    btn.textContent = 'Try enhance';
     btn.onclick = async () => {
       try {
         const data = await gameApi('enhance', { item_id: it.id });
@@ -66,7 +66,7 @@ async function renderEnhanceList(game) {
           if (qs('enh-gold') && game.state.player) qs('enh-gold').textContent = String(game.state.player.gold);
           TownUI.renderAttrPanel(game.state.player);
           TownUI.refreshAllInventoryUI(game, game.state.inventory || []);
-          toast(data.message || '强化失败');
+          toast(data.message || 'Enhancement failed');
           return;
         }
         game.applyPlayerPayload(data);
@@ -76,7 +76,7 @@ async function renderEnhanceList(game) {
           skipInventoryHook: true,
         });
         const np = data.enhance && data.enhance.plus_level != null ? data.enhance.plus_level : pl + 1;
-        toast('强化成功 +' + np);
+        toast('Enhanced to +' + np);
         await renderEnhanceList(game);
       } catch (e) {
         toast(String(e.message || e));
@@ -107,15 +107,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const s = await gameApi('session', {});
     if (!s.logged_in) {
-      toast('未连接钱包：请在顶栏连接 Initia 钱包。');
+      toast('Connect your wallet from the top bar first.');
       return;
     }
     if (!s.has_hero) {
-      toast('请先在顶栏点击「注册链上角色」，再刷新本页。');
+      toast('Create your character from the top bar, then refresh this page.');
       return;
     }
   } catch (e) {
-    toast(String((e && e.message) || e || '无法连接游戏壳'));
+    toast(String((e && e.message) || e || 'Could not reach the game'));
     return;
   }
 
@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         TownUI.renderAttrPanel(d.player);
         TownUI.refreshAllInventoryUI(g, d.inventory || [], { skipInventoryHook: true });
         await renderEnhanceList(g);
-        toast('已刷新');
+        toast('Refreshed');
       } catch (e) {
         toast(String(e.message || e));
       }

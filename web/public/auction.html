@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>拍卖行 · 冒险者地牢</title>
+  <title>Adventurer · Market</title>
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body class="rpg-view-town standalone-rpg-body">
   <script>window.RPG_LOGIN_URL = 'login.html';</script>
   <div id="toast"></div>
   <div class="standalone-page">
-    <nav class="town-nav" aria-label="页面导航">
-      <a href="town.html">主城</a>
-      <a href="codex.html">魔物图鉴</a>
-      <a href="leaderboard.html">排行榜</a>
-      <a href="enhance.html">强化工坊</a>
-      <a href="auction.html" aria-current="page">拍卖行</a>
+    <nav class="town-nav" aria-label="Main navigation">
+      <a href="town.html">Town</a>
+      <a href="codex.html">Bestiary</a>
+      <a href="leaderboard.html">Rankings</a>
+      <a href="enhance.html">Enhance</a>
+      <a href="auction.html" aria-current="page">Market</a>
     </nav>
     <header class="standalone-header">
-      <h1>拍卖行</h1>
-      <p class="standalone-sub">下方为当前角色金币与背包；点击背包或拍卖列表中的物品可查看介绍。</p>
+      <h1>Market</h1>
+      <p class="standalone-sub">Your gold and bag; tap a row or listing for details.</p>
     </header>
 
     <div class="panel auction-player-panel">
-      <h2>我的角色与背包</h2>
+      <h2>Hero & bag</h2>
       <div id="town-stats" class="town-stats-body"></div>
-      <h3 class="subh">背包（点击一行看介绍）</h3>
+      <h3 class="subh">Bag (tap a row)</h3>
       <div id="bag-list" class="bag-list"></div>
     </div>
 
     <div class="panel auction-trade-panel">
-      <h2>在售列表</h2>
-      <button type="button" id="btn-auction-refresh">刷新列表</button>
+      <h2>Listings</h2>
+      <button type="button" id="btn-auction-refresh">Refresh</button>
       <div id="auc-list" class="auc-list"></div>
-      <h3 class="subh">上架物品</h3>
+      <h3 class="subh">List an item</h3>
       <select id="auc-post-item"></select>
-      <input id="auc-post-price" type="number" min="1" placeholder="价格（金币）" class="auc-price-input">
-      <button type="button" id="auc-post-btn" disabled>上架</button>
+      <input id="auc-post-price" type="number" min="1" placeholder="Price (gold)" class="auc-price-input">
+      <button type="button" id="auc-post-btn" disabled>List</button>
     </div>
 
     <div id="item-detail-pane" class="item-detail-pane panel auction-detail-pane"></div>

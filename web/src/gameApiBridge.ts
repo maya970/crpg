@@ -40,8 +40,7 @@ import {
 
 const MON_NONE = 255n;
 
-const AUCTION_NOT_BOOTSTRAPPED =
-  '链上尚无拍卖行。新版合约在首次发布时会自动创建拍卖行；请重新部署/升级模块后刷新。若仍为旧链且从未初始化，则需 adventurer 地址执行一次 dungeon::bootstrap_auction_house。';
+const AUCTION_NOT_BOOTSTRAPPED = 'The market is not available yet. Try again later.';
 
 export type BridgeSubmitResult = { ok: boolean; error?: string };
 
@@ -101,29 +100,29 @@ function readPackedForSynthetic(hero: HeroRaw, itemId: number): bigint {
 
 async function resolveCombat(ctx: GameApiBridgeContext): Promise<void> {
   const addr = ctx.address;
-  if (!addr) throw new Error('未连接钱包');
+  if (!addr) throw new Error('Wallet not connected');
   let h = await ctx.fetchHero();
-  if (!h) throw new Error('尚未注册链上角色');
+  if (!h) throw new Error('Create a character first');
   let monId = parseU64(h.mon_id);
   if (monId === MON_NONE) {
     const r = await ctx.submitTx(msgsEncounterThenAutoBattle(addr, ctx.moduleAddr, 32));
-    if (!r.ok) throw new Error(r.error || '遇敌或战斗失败');
+    if (!r.ok) throw new Error(r.error || 'Combat failed to start');
     h = await ctx.fetchHero();
-    if (!h) throw new Error('读取角色失败');
+    if (!h) throw new Error('Could not load your character');
   }
   for (let i = 0; i < 28; i++) {
     monId = parseU64(h.mon_id);
     const monHp = parseU64(h.mon_hp);
     if (monId === MON_NONE || monHp === 0n) return;
-    if (parseU64(h.hp) === 0n) throw new Error('链上角色已阵亡');
+    if (parseU64(h.hp) === 0n) throw new Error('Your hero has fallen');
     const r = await ctx.submitTx([msgAutoBattle(addr, ctx.moduleAddr, 32)]);
-    if (!r.ok) throw new Error(r.error || '自动战斗失败');
+    if (!r.ok) throw new Error(r.error || 'Auto-battle failed');
     h = await ctx.fetchHero();
-    if (!h) throw new Error('读取角色失败');
+    if (!h) throw new Error('Could not load your character');
   }
   monId = parseU64(h.mon_id);
   const monHp = parseU64(h.mon_hp);
-  if (monId !== MON_NONE && monHp > 0n) throw new Error('链上战斗尚未结束，请重试同步');
+  if (monId !== MON_NONE && monHp > 0n) throw new Error('Combat is still in progress. Try again in a moment.');
 }
 
 function warehouseSetFromSession(addr: string): Set<number> {
@@ -137,9 +136,9 @@ function warehouseSetFromSession(addr: string): Set<number> {
 
 async function fullPlayer(ctx: GameApiBridgeContext) {
   const addr = ctx.address;
-  if (!addr) throw new Error('未连接钱包');
+  if (!addr) throw new Error('Wallet not connected');
   const hero = await ctx.fetchHero();
-  if (!hero) throw new Error('尚未注册链上角色');
+  if (!hero) throw new Error('Create a character first');
   const sp = await ctx.fetchDungeonSpawn();
   const spawnFloor = Math.max(1, Math.min(100000, parseInt(String(sp?.floor ?? '1'), 10) || 1));
   const payload = buildPlayerPayload(hero, ctx.items, addr, {
@@ -170,39 +169,39 @@ export async function handleGameApi(
       };
     }
     case 'build_info':
-      return { ok: true, build: 'initia-chain', backend: 'move+lcd' };
+      return { ok: true, build: 'live-1', backend: 'online' };
     case 'logout':
       return { ok: true };
     case 'login': {
-      if (!addr) return { ok: false, error: '请先在上方连接 Initia 钱包', logged_in: false };
+      if (!addr) return { ok: false, error: 'Connect your wallet first', logged_in: false };
       const hero = await ctx.fetchHero();
       if (!hero) return { ok: true, logged_in: true, has_hero: false, player: null, inventory: [] };
       return { ok: true, logged_in: true, has_hero: true, ...(await fullPlayer(ctx)) };
     }
     case 'register': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const ex = await ctx.fetchHero();
-      if (ex) throw new Error('该钱包已注册角色');
+      if (ex) throw new Error('This wallet already has a character');
       const r = await ctx.submitTx([dungeonExecuteMsg(addr, mod, 'register')]);
-      if (!r.ok) throw new Error(r.error || '注册失败');
+      if (!r.ok) throw new Error(r.error || 'Registration failed');
       return await fullPlayer(ctx);
     }
     case 'player':
       return await fullPlayer(ctx);
     case 'death': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const r = await ctx.submitTx([msgDeathResetRun(addr, mod)]);
-      if (!r.ok) throw new Error(r.error || '死亡重置失败');
+      if (!r.ok) throw new Error(r.error || 'Could not reset after defeat');
       return await fullPlayer(ctx);
     }
     case 'mint': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const type = String(b.type || '');
       const before = await ctx.fetchHero();
-      if (!before) throw new Error('尚未注册链上角色');
+      if (!before) throw new Error('Create a character first');
       if (type === 'chest') {
         const r = await ctx.submitTx([dungeonExecuteMsg(addr, mod, 'claim_chest')]);
-        if (!r.ok) throw new Error(r.error || '宝箱结算失败');
+        if (!r.ok) throw new Error(r.error || 'Could not claim chest');
         const after = await ctx.fetchHero();
         const payload = await fullPlayer(ctx);
         return { ...payload, mint: mintDelta(before, after, ctx.items) };
@@ -213,28 +212,28 @@ export async function handleGameApi(
         const payload = await fullPlayer(ctx);
         return { ...payload, mint: mintDelta(before, after, ctx.items) };
       }
-      throw new Error('未知 mint 类型');
+      throw new Error('Unknown reward type');
     }
     case 'sell': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const itemId = Number(b.item_id);
       const route = parseSyntheticItemId(itemId);
-      if (!route || route.kind !== 'bag') throw new Error('只能出售背包物品');
+      if (!route || route.kind !== 'bag') throw new Error('You can only sell items from your bag');
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('无角色');
+      if (!hero) throw new Error('No character found');
       const packedBefore = readPackedForSynthetic(hero, itemId);
       const { idx } = unpackPacked(packedBefore);
-      if (idx < 0) throw new Error('空槽位');
+      if (idx < 0) throw new Error('That bag slot is empty');
       const price = itemSellGoldIdx(idx);
       const r = await ctx.submitTx([msgSellBag(addr, mod, route.slot)]);
-      if (!r.ok) throw new Error(r.error || '出售失败');
+      if (!r.ok) throw new Error(r.error || 'Could not sell item');
       const payload = await fullPlayer(ctx);
       return { ...payload, sold_for: price, ok: true };
     }
     case 'sell_all_preview': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('无角色');
+      if (!hero) throw new Error('No character found');
       const bag = Array.isArray(hero.bag) ? hero.bag : [];
       let total = 0;
       let count = 0;
@@ -248,9 +247,9 @@ export async function handleGameApi(
       return { ok: true, count, total_gold: total };
     }
     case 'sell_all': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const hero0 = await ctx.fetchHero();
-      if (!hero0) throw new Error('无角色');
+      if (!hero0) throw new Error('No character found');
       const bag0 = Array.isArray(hero0.bag) ? hero0.bag : [];
       let previewTotal = 0;
       let previewCount = 0;
@@ -262,7 +261,7 @@ export async function handleGameApi(
         }
       }
       const r = await ctx.submitTx([msgSellAllBag(addr, mod)]);
-      if (!r.ok) throw new Error(r.error || '批量出售失败');
+      if (!r.ok) throw new Error(r.error || 'Could not sell all');
       const payload = await fullPlayer(ctx);
       return {
         ...payload,
@@ -272,38 +271,38 @@ export async function handleGameApi(
       };
     }
     case 'equip': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const itemId = Number(b.item_id);
       const route = parseSyntheticItemId(itemId);
-      if (!route || route.kind !== 'bag') throw new Error('只能从背包装备');
+      if (!route || route.kind !== 'bag') throw new Error('Equip items from your bag');
       const hand = String(b.hand || '');
       const mainHand = hand === 'main' ? true : hand === 'off' ? false : true;
       const r = await ctx.submitTx([msgEquipFromBag(addr, mod, route.slot, mainHand)]);
-      if (!r.ok) throw new Error(r.error || '装备失败');
+      if (!r.ok) throw new Error(r.error || 'Could not equip');
       return await fullPlayer(ctx);
     }
     case 'unequip': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const itemId = Number(b.item_id);
       const route = parseSyntheticItemId(itemId);
-      if (!route || route.kind !== 'equip') throw new Error('无效装备位');
+      if (!route || route.kind !== 'equip') throw new Error('Invalid equipment slot');
       const r = await ctx.submitTx([msgUnequipAppend(addr, mod, route.slotKind)]);
-      if (!r.ok) throw new Error(r.error || '卸下失败');
+      if (!r.ok) throw new Error(r.error || 'Could not unequip');
       return await fullPlayer(ctx);
     }
     case 'enhance_preview': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const itemId = Number(b.item_id);
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('无角色');
+      if (!hero) throw new Error('No character found');
       const p = readPackedForSynthetic(hero, itemId);
       const { idx, plus } = unpackPacked(p);
-      if (idx < 0) return { ok: false, error: '空物品' };
+      if (idx < 0) return { ok: false, error: 'No item there' };
       const tpl = ctx.items[idx];
       if (!tpl || !['weapon', 'armor', 'ring', 'boots'].includes(tpl.slot)) {
-        return { ok: false, error: '该物品不可强化' };
+        return { ok: false, error: 'This item cannot be enhanced' };
       }
-      if (plus >= 20) return { ok: false, error: '已达 +20' };
+      if (plus >= 20) return { ok: false, error: 'Already at +20' };
       const dice = tpl.damage_dice || '1d4';
       return {
         ok: true,
@@ -314,19 +313,19 @@ export async function handleGameApi(
       };
     }
     case 'enhance': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const itemId = Number(b.item_id);
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('无角色');
+      if (!hero) throw new Error('No character found');
       const plusBefore = unpackPacked(readPackedForSynthetic(hero, itemId)).plus;
       const route = parseSyntheticItemId(itemId);
-      if (!route) throw new Error('无效物品');
+      if (!route) throw new Error('Invalid item');
       const msg =
         route.kind === 'bag'
           ? msgEnhanceBagSlot(addr, mod, route.slot)
           : msgEnhanceEquipSlot(addr, mod, route.slotKind);
       const r = await ctx.submitTx([msg]);
-      if (!r.ok) throw new Error(r.error || '强化失败');
+      if (!r.ok) throw new Error(r.error || 'Enhancement failed');
       const h2 = await ctx.fetchHero();
       const plusAfter = unpackPacked(readPackedForSynthetic(h2!, itemId)).plus;
       const success = plusAfter > plusBefore;
@@ -335,7 +334,7 @@ export async function handleGameApi(
         return {
           ...payload,
           enhance_failed: true,
-          message: '强化失败，金币已消耗',
+          message: 'Enhancement failed; gold was still spent',
           ok: true,
         };
       }
@@ -368,30 +367,30 @@ export async function handleGameApi(
       return { ok: true, auction_house_ready, listings };
     }
     case 'auction_post': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       if (!(await ctx.fetchAuctionHouse())) throw new Error(AUCTION_NOT_BOOTSTRAPPED);
       const itemId = Number(b.item_id);
       const route = parseSyntheticItemId(itemId);
-      if (!route || route.kind !== 'bag') throw new Error('请从背包上架');
+      if (!route || route.kind !== 'bag') throw new Error('List items from your bag');
       const price = String(Math.max(1, Math.floor(Number(b.price_gold) || 0)));
       const r = await ctx.submitTx([msgAuctionPost(addr, mod, route.slot, price)]);
-      if (!r.ok) throw new Error(r.error || '上架失败');
+      if (!r.ok) throw new Error(r.error || 'Could not list item');
       return { ok: true };
     }
     case 'auction_cancel': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       if (!(await ctx.fetchAuctionHouse())) throw new Error(AUCTION_NOT_BOOTSTRAPPED);
       const lotId = String(b.auction_id ?? '');
       const r = await ctx.submitTx([msgAuctionCancel(addr, mod, lotId)]);
-      if (!r.ok) throw new Error(r.error || '下架失败');
+      if (!r.ok) throw new Error(r.error || 'Could not cancel listing');
       return await fullPlayer(ctx);
     }
     case 'auction_buy': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       if (!(await ctx.fetchAuctionHouse())) throw new Error(AUCTION_NOT_BOOTSTRAPPED);
       const lotId = String(b.auction_id ?? '');
       const r = await ctx.submitTx([msgAuctionBuy(addr, mod, lotId)]);
-      if (!r.ok) throw new Error(r.error || '购买失败');
+      if (!r.ok) throw new Error(r.error || 'Purchase failed');
       return await fullPlayer(ctx);
     }
     case 'leaderboard': {
@@ -455,28 +454,28 @@ export async function handleGameApi(
     }
 
     case 'dungeon_world': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const wd = await ctx.fetchWorldDungeon();
       return { ok: true, dungeon_world: dungeonWorldFromChain(wd) };
     }
 
     case 'boss_hit': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const wd0 = await ctx.fetchWorldDungeon();
       if (!wd0) {
-        throw new Error('全服世界首领未初始化：请用发布账户执行 bootstrap_world_dungeon');
+        throw new Error('World boss is not available yet');
       }
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('尚未注册链上角色');
+      if (!hero) throw new Error('Create a character first');
       const milestone = Math.floor(Number(b.milestone ?? 0));
       const damage = Math.floor(Number(b.damage ?? 0));
       const chip = Number(b.chip ?? 0) === 1;
       const chainMs = parseInt(wd0.milestone, 10) || 10;
       if (milestone !== chainMs) {
-        throw new Error('首领关卡已推进，请同步地城世界数据后重试');
+        throw new Error('Boss progress changed. Return to town and try again.');
       }
       const r = await ctx.submitTx([msgBossHitWorld(addr, mod, milestone, damage, chip)]);
-      if (!r.ok) throw new Error(r.error || '首领同步失败');
+      if (!r.ok) throw new Error(r.error || 'Boss action failed');
       const wd1 = await ctx.fetchWorldDungeon();
       const dw = dungeonWorldFromChain(wd1);
       const active = dw.bosses[dw.bosses.length - 1];
@@ -493,21 +492,21 @@ export async function handleGameApi(
     }
 
     case 'jump_catalog': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const wd = await ctx.fetchWorldDungeon();
       const maxF = wd ? Math.max(10, parseInt(wd.max_unlocked_floor, 10) || 10) : 10;
       return { ok: true, catalog: JUMP_EQUIV_CATALOG, max_floor: maxF };
     }
 
     case 'jump_spawn_ack': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const r = await ctx.submitTx([msgJumpResetSpawn(addr, mod)]);
-      if (!r.ok) throw new Error(r.error || '同步失败');
+      if (!r.ok) throw new Error(r.error || 'Could not sync');
       return await fullPlayer(ctx);
     }
 
     case 'jump_submit': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const target = Math.floor(Number(b.target_floor ?? 0));
       const rawIds = Array.isArray(b.item_ids) ? b.item_ids : [];
       const idList: number[] = [];
@@ -522,51 +521,51 @@ export async function handleGameApi(
       const wd = await ctx.fetchWorldDungeon();
       const maxF = wd ? Math.max(10, parseInt(wd.max_unlocked_floor, 10) || 10) : 0;
       if (!wd || maxF < 10) {
-        throw new Error('全服跳跃层数未就绪：请部署并 bootstrap_world_dungeon');
+        throw new Error('Floor jump is not available yet');
       }
       if (target < 10 || target % 10 !== 0 || target > maxF) {
-        throw new Error(`目标层须为 10～${maxF} 的 10 的倍数（≤ 当前全服解锁层，含首领层）`);
+        throw new Error(`Target floor must be a multiple of 10 between 10 and ${maxF}`);
       }
       const needEquiv = target / 10;
       if (needEquiv < 1 || idList.length < 1) {
-        throw new Error('请选择等价物并指定有效目标层');
+        throw new Error('Pick offerings and a valid target floor');
       }
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('尚未注册链上角色');
+      if (!hero) throw new Error('Create a character first');
       const whSt = loadWarehouseState(addr);
       let totalEquiv = 0;
       const slots: number[] = [];
       for (const iid of idList) {
         const route = parseSyntheticItemId(iid);
         if (!route || route.kind !== 'bag') {
-          throw new Error('物品不存在或不属于你');
+          throw new Error('Item not found or not yours');
         }
         if (whSt.warehouseSlots[String(route.slot)] === 1) {
-          throw new Error('请从仓库取出物品再放入法阵');
+          throw new Error('Take items out of storage before using them here');
         }
         const bag = Array.isArray(hero.bag) ? hero.bag : [];
         const cell = bag[route.slot];
         const packed = parseU64(String(cell ?? '0'));
         const { idx } = unpackPacked(packed);
         if (idx < 0) {
-          throw new Error('物品不存在或不属于你');
+          throw new Error('Item not found or not yours');
         }
         const tpl = ctx.items[idx];
         if (!tpl || tpl.slot !== 'misc') {
-          throw new Error('仅杂物可作为等价物');
+          throw new Error('Only trinkets can be used as offerings');
         }
         if (idx < 19 || idx > 24) {
-          throw new Error('该杂物链上不可作跳跃等价物（须为模板索引 19-24，与 Move catalog 一致）');
+          throw new Error('That trinket cannot be used as a jump offering');
         }
         totalEquiv += 1;
         slots.push(route.slot);
       }
       if (totalEquiv < needEquiv) {
-        throw new Error(`等价物不足：需要 ${needEquiv}，当前选中合计 ${totalEquiv}`);
+        throw new Error(`Not enough offerings: need ${needEquiv}, selected ${totalEquiv}`);
       }
       const uniqueSlots = [...new Set(slots)].sort((a, b) => b - a);
       const jr = await ctx.submitTx([msgJumpPortalDiscard(addr, mod, target, uniqueSlots)]);
-      if (!jr.ok) throw new Error(jr.error || '跳跃失败');
+      if (!jr.ok) throw new Error(jr.error || 'Jump failed');
       const payload = await fullPlayer(ctx);
       return {
         ...payload,
@@ -579,25 +578,25 @@ export async function handleGameApi(
     }
 
     case 'warehouse_set': {
-      if (!addr) throw new Error('未连接钱包');
+      if (!addr) throw new Error('Wallet not connected');
       const wItemId = Math.floor(Number(b.item_id ?? 0));
       const wFlag = Math.floor(Number(b.warehouse ?? -1));
       if (wItemId < 1 || (wFlag !== 0 && wFlag !== 1)) {
-        throw new Error('参数无效');
+        throw new Error('Invalid request');
       }
       const route = parseSyntheticItemId(wItemId);
       if (!route) {
-        throw new Error('未找到目标');
+        throw new Error('Nothing there');
       }
       if (route.kind === 'equip') {
-        throw new Error('已装备的物品请先卸下再放入仓库');
+        throw new Error('Unequip items before moving them to storage');
       }
       const hero = await ctx.fetchHero();
-      if (!hero) throw new Error('尚未注册链上角色');
+      if (!hero) throw new Error('Create a character first');
       const bag = Array.isArray(hero.bag) ? hero.bag : [];
       const cell = bag[route.slot];
       if (!cell || parseU64(String(cell)) === 0n) {
-        throw new Error('未找到目标');
+        throw new Error('Nothing there');
       }
       const st = loadWarehouseState(addr);
       if (wFlag === 1) {
@@ -610,6 +609,6 @@ export async function handleGameApi(
     }
 
     default:
-      throw new Error(`不支持的操作: ${action}`);
+      throw new Error(`Unsupported action: ${action}`);
   }
 }

@@ -1,20 +1,16 @@
 import { RESTClient } from '@initia/initia.js';
 
-/** 避免 REST 长期无响应导致 iframe 一直停在「加载中」 */
+/** Abort long REST waits so the iframe does not hang forever */
 const LCD_FETCH_MS = 28000;
 
 export class LcdTimeoutError extends Error {
   constructor() {
-    super('链上 REST 查询超时，请检查 VITE_LCD_URL 与网络');
+    super('The game server took too long to respond. Check your connection and try again.');
     this.name = 'LcdTimeoutError';
   }
 }
 
-/**
- * Initia REST 查询 Move 资源时，地址与 struct tag 内模块地址常需 **32 字节 hex**（0x + 64 字符），
- * 短写 `0x249a…` 会导致 404，前端误判「无拍卖行」。
- * bech32（init1…）原样返回，由 SDK/节点解析。
- */
+/** Pad module hex for Move REST paths; pass bech32 through unchanged. */
 export function canonMoveModuleAddress(addr: string): string {
   const t = String(addr).trim();
   if (!t) return t;
@@ -41,7 +37,7 @@ function withLcdTimeout<T>(p: Promise<T>): Promise<T> {
   });
 }
 
-/** LCD 返回的 Move 资源字段多为字符串 */
+/** Move resource fields from LCD are often strings */
 export interface HeroRaw {
   xp: string;
   gold: string;

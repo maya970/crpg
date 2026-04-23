@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>地下城 · 冒险者地牢</title>
+  <title>Adventurer · Dungeon</title>
   <link rel="stylesheet" href="css/main.css">
-  <!-- 优先本地 vendor（npm install 后生成）；缺失时由 jsdelivr 兜底（cdnjs 在部分地区不可用） -->
   <script src="vendor/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 </head>
@@ -16,22 +15,22 @@
   </script>
   <div id="app-wrap">
     <div id="game-root">
-      <div id="hud">加载中…</div>
+      <div id="hud">Loading…</div>
       <div id="dungeon-sheet" class="dungeon-sheet" hidden></div>
-      <div id="local-combat-log" class="local-combat-log" aria-live="polite" title="仅保存在本机浏览器"></div>
+      <div id="local-combat-log" class="local-combat-log" aria-live="polite" title="Saved only in this browser"></div>
       <div id="toast"></div>
       <div id="flash" class="flash"></div>
       <div id="dungeon-bg-preload-hint" class="dungeon-bg-preload-hint" hidden></div>
       <div id="dungeon-load-overlay" class="dungeon-load-overlay" hidden aria-busy="true">
         <div class="dungeon-load-card">
           <div id="dungeon-load-choice" class="dungeon-load-choice">
-            <p class="dungeon-load-title">进入地下城 · 素材加载</p>
-            <p class="dungeon-load-hint">首次进入请选择加载方式。</p>
-            <button type="button" id="btn-preload-wait" class="dungeon-load-btn primary">全部加载完成后再开始</button>
-            <button type="button" id="btn-preload-bg" class="dungeon-load-btn">立即进入（后台加载）</button>
+            <p class="dungeon-load-title">Dungeon · Loading assets</p>
+            <p class="dungeon-load-hint">Choose how to load on your first visit.</p>
+            <button type="button" id="btn-preload-wait" class="dungeon-load-btn primary">Wait for everything</button>
+            <button type="button" id="btn-preload-bg" class="dungeon-load-btn">Play now (load in background)</button>
           </div>
           <div id="dungeon-load-progress" class="dungeon-load-progress" hidden>
-            <p id="dungeon-load-label" class="dungeon-load-label">正在加载地城素材…</p>
+            <p id="dungeon-load-label" class="dungeon-load-label">Loading dungeon art…</p>
             <div id="dungeon-load-bar-wrap" class="dungeon-load-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
               <div id="dungeon-load-fill" class="dungeon-load-fill"></div>
             </div>
@@ -41,7 +40,7 @@
       </div>
     </div>
     <div id="bar">
-      <button type="button" id="btn-town" class="primary">回城</button>
+      <button type="button" id="btn-town" class="primary">Return to town</button>
     </div>
   </div>
 

@@ -1,6 +1,4 @@
-/**
- * 顶部导航点击后显示过渡层再跳转，避免「点了没反应」的感觉。
- */
+/** Brief overlay when changing pages */
 (function () {
   function ensureOverlay() {
     let o = document.getElementById('rpg-nav-overlay');
@@ -9,7 +7,7 @@
       o.id = 'rpg-nav-overlay';
       o.className = 'rpg-nav-overlay';
       o.setAttribute('aria-live', 'polite');
-      o.innerHTML = '<div class="rpg-nav-overlay-card">正在打开页面…</div>';
+      o.innerHTML = '<div class="rpg-nav-overlay-card">Opening…</div>';
       document.body.appendChild(o);
     }
     return o;

@@ -30,9 +30,9 @@ export class RootErrorBoundary extends Component<Props, State> {
             margin: '0 auto',
           }}
         >
-          <h1 style={{ fontSize: '1.1rem', marginTop: 0 }}>界面未能启动</h1>
+          <h1 style={{ fontSize: '1.1rem', marginTop: 0 }}>Something went wrong</h1>
           <p style={{ color: '#94a3b8', lineHeight: 1.5 }}>
-            钱包壳（InterwovenKit / Privy）加载失败。常见原因：当前域名未在 Initia 侧配置允许列表；或浏览器插件拦截了脚本。
+            The app could not start. Try refreshing the page or using a different browser.
           </p>
           <pre
             style={{
@@ -48,13 +48,7 @@ export class RootErrorBoundary extends Component<Props, State> {
           >
             {msg}
           </pre>
-          <p style={{ color: '#7a8fa3', fontSize: 13, marginTop: '1rem' }}>
-            请打开开发者工具 (F12) → Console 查看完整报错；并在{' '}
-            <a href="https://docs.initia.xyz/interwovenkit" style={{ color: '#5eead4' }}>
-              InterwovenKit 文档
-            </a>{' '}
-            中核对域名与 Auto-Sign 配置。
-          </p>
+          <p style={{ color: '#7a8fa3', fontSize: 13, marginTop: '1rem' }}>If this keeps happening, contact support.</p>
         </div>
       );
     }

@@ -1,4 +1,4 @@
-/* 字体改由 index.html link 加载，避免 @import 阻塞首屏 CSS */
+/* Fonts loaded from index.html */
 
 :root {
   --bg: #070b10;

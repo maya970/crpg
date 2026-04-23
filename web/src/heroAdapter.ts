@@ -17,7 +17,7 @@ export type ItemDef = {
   image_num?: number;
 };
 
-/** 与链上 `town-ui` / 背包操作一致：背包 101+slot，装备 201..205 */
+/** Synthetic item ids: bag 101+slot, equip 201..205 */
 export const EQ_MAIN = 201;
 export const EQ_OFF = 202;
 export const EQ_ARMOR = 203;
@@ -80,7 +80,7 @@ function maxU64(a: bigint, b: bigint): bigint {
   return a > b ? a : b;
 }
 
-/** 与 catalog.item_rarity_tier 一致（按物品下标） */
+/** Matches catalog rarity tier by item index */
 function itemRarityTier(idx: number): number {
   const t: Record<number, number> = {
     0: 0, 5: 0, 12: 0, 14: 0, 19: 0, 20: 0,

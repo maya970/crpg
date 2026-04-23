@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>冒险者主城 · 冒险者地牢</title>
+  <title>Adventurer · Town</title>
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body class="rpg-view-town">
@@ -11,73 +11,73 @@
   <div id="toast"></div>
 
   <div id="town-overlay" class="open">
-    <nav class="town-nav" aria-label="页面导航">
-      <a href="town.html" aria-current="page">主城</a>
-      <a href="codex.html">魔物图鉴</a>
-      <a href="leaderboard.html">排行榜</a>
-      <a href="enhance.html">强化工坊</a>
-      <a href="auction.html">拍卖行</a>
+    <nav class="town-nav" aria-label="Main navigation">
+      <a href="town.html" aria-current="page">Town</a>
+      <a href="codex.html">Bestiary</a>
+      <a href="leaderboard.html">Rankings</a>
+      <a href="enhance.html">Enhance</a>
+      <a href="auction.html">Market</a>
     </nav>
 
     <div class="town-header">
-      <h1>冒险者主城</h1>
+      <h1>Adventurer Town</h1>
       <p id="town-name" class="town-subtitle"></p>
-      <button type="button" id="btn-logout" class="town-logout">退出登录</button>
+      <button type="button" id="btn-logout" class="town-logout">Sign out</button>
     </div>
 
     <div class="town-grid town-top">
       <div class="panel panel-attr">
-        <h2>属性面板</h2>
-        <p class="panel-intro">等级、经验、金币、生命、护甲与六维属性。</p>
+        <h2>Hero stats</h2>
+        <p class="panel-intro">Level, XP, gold, HP, armor, and attributes.</p>
         <div id="town-stats" class="town-stats-body"></div>
       </div>
       <div class="panel panel-detail">
-        <h2>物品介绍 · 装备介绍 · 图鉴详情</h2>
-        <p class="panel-intro">选中背包或装备槽后显示详情与商店收购价。魔物图鉴与多维度排行见独立页面。</p>
+        <h2>Details</h2>
+        <p class="panel-intro">Select gear or bag items for stats and shop buyback. Bestiary and rankings have their own pages.</p>
         <div id="item-detail-pane" class="item-detail-pane"></div>
       </div>
     </div>
 
     <div class="town-grid town-mid">
       <div class="panel">
-        <h2>装备栏</h2>
-        <p class="panel-intro">主手（右）与副手（左）各一把武器（独立槽位），以及护甲、戒指与鞋（鞋减轻陷阱伤害）。</p>
+        <h2>Equipment</h2>
+        <p class="panel-intro">Main hand (right) and off hand (left) weapons, armor, ring, and boots. Boots reduce trap damage.</p>
         <div id="equip-slots" class="equip-slots"></div>
       </div>
       <div class="panel">
-        <h2>背包（物品栏）</h2>
-        <p class="panel-intro">未穿戴的物品；可装备、出售。</p>
+        <h2>Bag</h2>
+        <p class="panel-intro">Items not worn; equip or sell them here.</p>
         <div class="bag-toolbar">
-          <button type="button" id="btn-sell-all" class="bag-sell-all-btn">全部售出…</button>
+          <button type="button" id="btn-sell-all" class="bag-sell-all-btn">Sell all unequipped…</button>
         </div>
         <div id="bag-list" class="bag-list"></div>
       </div>
     </div>
 
     <div id="town-actions">
-      <a href="dungeon.html" class="town-dungeon-link">进入地下城</a>
+      <a href="dungeon.html" class="town-dungeon-link">Enter dungeon</a>
     </div>
   </div>
 
   <div id="sell-one-modal" class="rpg-modal" hidden>
     <div class="rpg-modal-card" role="dialog" aria-modal="true" aria-labelledby="sell-one-title">
-      <h3 id="sell-one-title" class="rpg-modal-title">确认出售？</h3>
+      <h3 id="sell-one-title" class="rpg-modal-title">Sell item?</h3>
       <p id="sell-one-summary" class="rpg-modal-text"></p>
       <div class="rpg-modal-actions">
-        <button type="button" id="sell-one-cancel" class="rpg-modal-btn">取消</button>
-        <button type="button" id="sell-one-confirm" class="rpg-modal-btn danger">确定出售</button>
+        <button type="button" id="sell-one-cancel" class="rpg-modal-btn">Cancel</button>
+        <button type="button" id="sell-one-confirm" class="rpg-modal-btn danger">Sell</button>
       </div>
     </div>
   </div>
 
   <div id="sell-all-modal" class="rpg-modal" hidden>
     <div class="rpg-modal-card" role="dialog" aria-modal="true" aria-labelledby="sell-all-title">
-      <h3 id="sell-all-title" class="rpg-modal-title">确认全部售出？</h3>
-      <p class="rpg-modal-text">将一次性卖出背包内所有<strong>未装备</strong>物品，按商店收购价结算。</p>
+      <h3 id="sell-all-title" class="rpg-modal-title">Sell everything unequipped?</h3>
+      <p class="rpg-modal-text">This sells every <strong>unequipped</strong> bag item at shop buyback prices.</p>
       <p id="sell-all-summary" class="rpg-modal-text sell-all-summary"></p>
       <div class="rpg-modal-actions">
-        <button type="button" id="sell-all-cancel" class="rpg-modal-btn">取消</button>
-        <button type="button" id="sell-all-confirm" class="rpg-modal-btn danger">确定全部卖出</button>
+        <button type="button" id="sell-all-cancel" class="rpg-modal-btn">Cancel</button>
+        <button type="button" id="sell-all-confirm" class="rpg-modal-btn danger">Sell all</button>
       </div>
     </div>
   </div>

@@ -17,24 +17,22 @@ function dungeonShowError(msg) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (typeof THREE === 'undefined') {
-    dungeonShowError(
-      'Three.js 未加载（缺少 public/vendor/three.min.js）。请在 web 目录执行 npm install 后再构建部署；勿依赖外网 CDN。'
-    );
+    dungeonShowError('3D engine failed to load. Try a hard refresh (Ctrl+Shift+R).');
     return;
   }
   const g = window.ChristmasRPG;
   if (!g) {
-    dungeonShowError('地牢脚本未初始化。请硬刷新页面 (Ctrl+Shift+R)；若仍失败请打开浏览器控制台查看报错。');
+    dungeonShowError('Dungeon could not start. Try a hard refresh (Ctrl+Shift+R).');
     return;
   }
   try {
     const s = await gameApi('session', {});
     if (!s.logged_in) {
-      dungeonShowError('未连接钱包：请回到站点根路径 /，在顶栏点击「连接钱包」后再从导航进入地城。');
+      dungeonShowError('Open the game from the home page and connect your wallet from the top bar first.');
       return;
     }
     if (!s.has_hero) {
-      dungeonShowError('尚未注册链上角色：请在顶栏点击「注册链上角色」，成功后再点「地城」或刷新本页。');
+      dungeonShowError('Create your character from the top bar, then open the dungeon again.');
       return;
     }
   } catch (e) {

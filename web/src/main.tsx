@@ -28,7 +28,7 @@ if (el) {
     const msg = e instanceof Error ? e.message : String(e);
     el.innerHTML =
       '<p style="padding:2rem;color:#fca5a5;font-family:system-ui,sans-serif;max-width:28rem;margin:0 auto">' +
-      '<strong>首屏渲染崩溃</strong><br/>' +
+      '<strong>Could not start the interface</strong><br/>' +
       String(msg).replace(/</g, '&lt;') +
       '</p>';
   }

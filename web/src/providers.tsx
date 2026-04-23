@@ -1,7 +1,4 @@
-/**
- * InterwovenKit + 可选 Auto-Sign
- * Privy / 域名等见：https://docs.initia.xyz/interwovenkit/features/autosign/configuration
- */
+/** Wallet shell (InterwovenKit). */
 import { PropsWithChildren, Suspense, useEffect } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { WagmiProvider, createConfig, http } from 'wagmi';
@@ -29,7 +26,7 @@ const kitEnv =
     ? MAINNET
     : TESTNET;
 
-/** 部分域名在未配置 Privy 时 enableAutoSign 会卡住首屏，默认关闭；见 `autosignConfig` 与 `.env.example` */
+/** Auto-sign when enabled at build time; see autosignConfig. */
 const enableAutoSign = resolveInterwovenKitEnableAutoSign();
 
 function KitSuspenseFallback() {
@@ -48,9 +45,9 @@ function KitSuspenseFallback() {
         textAlign: 'center',
       }}
     >
-      <p style={{ margin: 0, fontSize: 16 }}>正在加载 Initia 钱包组件…</p>
+      <p style={{ margin: 0, fontSize: 16 }}>Loading wallet…</p>
       <p style={{ margin: '1rem 0 0', fontSize: 13, color: '#94a3b8', maxWidth: 360, lineHeight: 1.5 }}>
-        若长时间停在此页，请检查网络，或将部署域名加入 InterwovenKit / Privy 允许列表。
+        If this screen stays for a long time, check your network and try again later.
       </p>
     </div>
   );

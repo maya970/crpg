@@ -46,7 +46,7 @@
         return true;
       }
       if (d.logged_in && !d.has_hero) {
-        showAuth('钱包已连接：请在顶栏点击「注册链上角色」，再刷新本页。');
+        showAuth('Wallet connected. Tap Create character in the top bar, then refresh this page.');
         return false;
       }
     } catch (_) {
@@ -120,7 +120,7 @@
       });
     }
     window.addEventListener('rpg:unauthorized', () => {
-      showAuth('登录已过期，请重新登录');
+      showAuth('Session expired. Please sign in again.');
       setTimeout(() => location.reload(), 400);
     });
     const sessionOk = await trySession();

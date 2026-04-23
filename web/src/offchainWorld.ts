@@ -100,7 +100,7 @@ export function dungeonWorldFromChain(wd: WorldDungeonRaw | null): { max_unlocke
       ac: st.ac,
       to_hit: st.to_hit,
       damage: st.damage,
-      label: `世界首领 · 第${m}层`,
+      label: `World boss · floor ${m}`,
       monster_key: 'world_boss',
       defeated: 1,
       first_killer_username: '',
@@ -118,7 +118,7 @@ export function dungeonWorldFromChain(wd: WorldDungeonRaw | null): { max_unlocke
     ac: st.ac,
     to_hit: st.to_hit,
     damage: st.damage,
-    label: `世界首领 · 第${currentMs}层`,
+    label: `World boss · floor ${currentMs}`,
     monster_key: 'world_boss',
     defeated,
     first_killer_username: '',
@@ -129,13 +129,13 @@ export function dungeonWorldFromChain(wd: WorldDungeonRaw | null): { max_unlocke
 
 /** Aligns with Move catalog::jump_equiv_units (misc idx 19-24). */
 export const JUMP_EQUIV_CATALOG: { item_key: string; equiv_units: number; label: string }[] = [
-  { item_key: 'holly_ink_vial', equiv_units: 1, label: '冬青墨水瓶' },
-  { item_key: 'flower_tea_flask', equiv_units: 1, label: '花露茶壶（纪念）' },
-  { item_key: 'flutter_egg_souvenir', equiv_units: 1, label: '振翅彩蛋' },
-  { item_key: 'robin_badge', equiv_units: 1, label: '知更鸟徽章' },
-  { item_key: 'windchime_whistle', equiv_units: 1, label: '风铃哨' },
-  { item_key: 'cherry_blossom_ink', equiv_units: 1, label: '樱墨水瓶' },
-  { item_key: 'sunbeam_crystal', equiv_units: 1, label: '曦光晶屑' },
+  { item_key: 'holly_ink_vial', equiv_units: 1, label: 'Holly ink vial' },
+  { item_key: 'flower_tea_flask', equiv_units: 1, label: 'Flower-tea flask' },
+  { item_key: 'flutter_egg_souvenir', equiv_units: 1, label: 'Flutter egg souvenir' },
+  { item_key: 'robin_badge', equiv_units: 1, label: 'Robin badge' },
+  { item_key: 'windchime_whistle', equiv_units: 1, label: 'Windchime whistle' },
+  { item_key: 'cherry_blossom_ink', equiv_units: 1, label: 'Cherry blossom ink' },
+  { item_key: 'sunbeam_crystal', equiv_units: 1, label: 'Sunbeam crystal shard' },
 ];
 
 export function jumpEquivMap(): Record<string, number> {

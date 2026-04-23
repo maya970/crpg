@@ -308,14 +308,14 @@ body {
   transition: background 0.35s ease;
 }
 
-/* 三界面：登录 / 主城 / 地下城 */
+/* Auth / town / dungeon layouts */
 body.rpg-view-auth {
   background: radial-gradient(ellipse at center, #1b2a1f 0%, #050a08 78%);
 }
 body.rpg-view-town {
   background: linear-gradient(180deg, #0d2218 0%, #050a10 55%);
 }
-/* 强化 / 拍卖等独立页需纵向滚动 */
+/* Standalone pages scroll vertically */
 body.standalone-rpg-body {
   overflow-y: auto;
   touch-action: manipulation;
@@ -804,7 +804,7 @@ canvas {
 }
 .detail-action-btn.primary { border-color: #ffd54f; background: #2e7d32; }
 
-/* 全部售出确认 */
+/* Sell-all modal */
 .rpg-modal {
   position: fixed;
   inset: 0;
@@ -878,7 +878,7 @@ canvas {
   background: rgba(69, 90, 100, 0.95);
 }
 
-/* 稀有度 / 伤害骰颜色（各面板共用） */
+/* Rarity & dice tag colors */
 .rarity-tag {
   display: inline;
   font-weight: 600;
@@ -901,7 +901,7 @@ canvas {
 .dice-tag.dice-tier-3 { color: #4fc3f7; }
 .dice-tag.dice-tier-4 { color: #ff7043; }
 
-/* 多榜排行榜页 */
+/* Multi-board leaderboard */
 .lb-panel-multi .lb-refresh-top { margin-bottom: 14px; }
 .lb-boards { display: flex; flex-direction: column; gap: 20px; }
 .lb-section {
@@ -918,7 +918,7 @@ canvas {
 .lb-section-body .lb-row:first-of-type { margin-top: 0; }
 .lb-section-body .empty-hint { margin: 8px 0 0 0; }
 
-/* 资源版本更新遮罩 */
+/* Asset refresh overlay */
 .rpg-update-overlay {
   position: fixed;
   inset: 0;

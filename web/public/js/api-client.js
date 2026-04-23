@@ -3,9 +3,7 @@ var RPG_API_TIMEOUT_MS = 45000;
 
 async function gameApi(action, body) {
   if (window.parent === window) {
-    throw new Error(
-      '请从站点首页进入：先打开根路径 /，用顶栏连接钱包后再点「地城」。不要在新标签直接打开 dungeon.html（无游戏壳时无法链上通信）。'
-    );
+    throw new Error('Open this game from the home page so it can talk to your wallet.');
   }
   const id =
     typeof crypto !== 'undefined' && crypto.randomUUID
@@ -14,11 +12,7 @@ async function gameApi(action, body) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
       window.removeEventListener('message', onMessage);
-      reject(
-        new Error(
-          '游戏壳长时间无响应（可能链上查询卡住）。请检查：① Vercel 是否已配置 VITE_LCD_URL、VITE_MOVE_MODULE_ADDR；② 网络能否访问 Initia REST；③ 刷新页面并重新连接钱包。'
-        )
-      );
+      reject(new Error('The game is taking too long to respond. Check your connection and refresh the page.'));
     }, RPG_API_TIMEOUT_MS);
     function onMessage(ev) {
       if (ev.source !== window.parent) return;

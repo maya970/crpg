@@ -95,7 +95,7 @@ export function msgEquipFromBag(sender: string, mod: string, bagSlot: number, ma
   return dungeonExecuteMsg(sender, mod, 'equip_from_bag', [], [b64U64(bagSlot), b64Bool(mainHand)]);
 }
 
-/** unequip_to_bag(bag_slot: u64, slot_kind: u8) — 0 主手 1 副手 2 护甲 3 戒指 4 鞋 */
+/** unequip_to_bag: slot_kind 0 main 1 off 2 armor 3 ring 4 boots */
 export function msgUnequipToBag(sender: string, mod: string, bagSlot: number, slotKind: number): EncodeObject {
   return dungeonExecuteMsg(sender, mod, 'unequip_to_bag', [], [b64U64(bagSlot), b64U8(slotKind)]);
 }

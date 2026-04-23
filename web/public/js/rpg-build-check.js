@@ -12,8 +12,8 @@
     el.setAttribute('aria-live', 'polite');
     el.innerHTML =
       '<div class="rpg-update-card">' +
-      '<p class="rpg-update-title">正在更新资源</p>' +
-      '<p class="rpg-update-hint">校验码已变更，正在清理缓存并刷新页面…</p>' +
+      '<p class="rpg-update-title">Updating</p>' +
+      '<p class="rpg-update-hint">Clearing cache and reloading…</p>' +
       '<div class="rpg-update-bar-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">' +
       '<div id="rpg-update-fill" class="rpg-update-fill"></div></div>' +
       '<p id="rpg-update-pct" class="rpg-update-pct">0%</p></div>';
@@ -94,7 +94,7 @@
       await new Promise((r) => setTimeout(r, 200));
       location.reload();
     } catch (_) {
-      /* 离线或接口失败时不阻断页面 */
+      /* ignore */
     }
   }
 

@@ -1,5 +1,5 @@
 /**
- * InterwovenKit Auto-Sign（构建时配置）
+ * InterwovenKit auto-sign (build-time)
  * @see https://docs.initia.xyz/interwovenkit/features/autosign/configuration
  */
 const MSG_EXECUTE = '/initia.move.v1.MsgExecute';
