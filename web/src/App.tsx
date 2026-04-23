@@ -15,6 +15,26 @@ const gasPriceStr = import.meta.env.VITE_GAS_PRICE ?? '0.025uinit';
 
 const INITIA_TESTNET_FAUCET = 'https://app.testnet.initia.xyz/faucet';
 
+/** When simulate/estimateGas fails (e.g. "Failed to initialize request"), use this gas amount for fee calc. */
+function readFallbackMsgExecuteGasUnits(): number {
+  const raw = String(import.meta.env.VITE_FALLBACK_MSG_EXECUTE_GAS ?? '2500000').trim();
+  const n = Math.floor(Number(raw));
+  return Number.isFinite(n) && n >= 100_000 ? n : 2_500_000;
+}
+
+function formatTxSubmitError(e: unknown): string {
+  let err = e instanceof Error ? e.message : String(e);
+  if (e instanceof Error && e.cause) {
+    const c = e.cause instanceof Error ? e.cause.message : String(e.cause);
+    if (c && !err.includes(c)) err = `${err} · ${c}`;
+  }
+  if (/failed to initialize request/i.test(err)) {
+    err +=
+      ' · Often a wallet/RPC hiccup: refresh, retry, pause VPN/ad-blockers, or temporarily disable auto-sign.';
+  }
+  return err;
+}
+
 function isLikelyUnfundedAccountMessage(msg: string): boolean {
   return /does not exist on chain|Send some tokens before trying to query sequence/i.test(msg);
 }
@@ -110,9 +130,26 @@ function AppMain() {
       setTxBusy(true);
       setTxNote(null);
       try {
-        const gas = await estimateGas({ messages });
+        let gas: number;
+        try {
+          gas = await estimateGas({ messages });
+        } catch (simErr) {
+          gas = readFallbackMsgExecuteGasUnits();
+          console.warn('[tx] estimateGas failed; using fallback gas units', gas, simErr);
+        }
         const fee = calculateFee(Math.ceil(gas * 1.35), GasPrice.fromString(gasPriceStr));
-        const res = await submitTxBlock({ messages, fee });
+        const payload = { messages, fee };
+        let res: Awaited<ReturnType<typeof submitTxBlock>>;
+        try {
+          res = await submitTxBlock(payload);
+        } catch (first) {
+          if (/failed to initialize request/i.test(formatTxSubmitError(first))) {
+            await new Promise((r) => setTimeout(r, 450));
+            res = await submitTxBlock(payload);
+          } else {
+            throw first;
+          }
+        }
         if (res.code !== 0) {
           const err = res.rawLog ?? `Transaction failed (code ${res.code})`;
           setTxNote(err);
@@ -122,7 +159,7 @@ function AppMain() {
         await refresh();
         return { ok: true as const };
       } catch (e) {
-        let err = e instanceof Error ? e.message : String(e);
+        let err = formatTxSubmitError(e);
         if (!isMainnet && isLikelyUnfundedAccountMessage(err)) {
           err = `Fund this wallet with test INIT before sending transactions. Open the faucet, then try again. Details: ${err}`;
         }
